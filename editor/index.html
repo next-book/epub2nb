@@ -6,11 +6,182 @@
   <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
   <link rel="stylesheet" href="./assets/autocomplete.css" />
   <link rel="stylesheet" href="./assets/nestable.css" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
 
   <style>
+    :root {
+      background-color: #eee;
+      --gray: #aaa;
+
+      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+      font-size: 14px;
+    }
+
     .els {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
+    }
+
+    .nestable h2 {
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .structure {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      grid-gap: 2rem;
+    }
+
+    .controls {
+      background-color: white;
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 1;
+      display: none;
+      margin: -1px -1px 0 0;
+    }
+
+    .nestable-item {
+      position: relative;
+    }
+
+    .nestable-item:hover > div > div > div > .controls {
+      display: flex;
+    }
+
+    .desc {
+      display: none;
+    }
+
+    .show-in-toc {
+      display: block;
+      margin: 0 0 0 1rem;
+      padding: 0.25rem 0.5rem;
+      line-height: 1rem;
+      border: 1px solid var(--gray);
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .numbered-children {
+      display: block;
+      margin-left: 1rem;
+      padding: 0.25rem 0.5rem;
+      line-height: 1rem;
+      border: 1px solid var(--gray);
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .show-in-toc input,
+    .numbered-children input {
+      display: none;
+    }
+
+    .role {
+      display: flex;
+    }
+
+    .role label {
+      display: block;
+      margin: 0;
+    }
+
+    .role input {
+      display: none;
+    }
+
+    .role .btn {
+      color: #777;
+      display: block;
+      margin: 0;
+      padding: 0.25rem 0.5rem;
+      line-height: 1rem;
+      border: solid var(--gray);
+      border-width: 1px 1px 1px 0;
+      cursor: pointer;
+    }
+
+    .role .btn:hover {
+      background: #eee;
+    }
+
+    .role input:checked + .btn {
+
+      color: black;
+      box-shadow: inset 0 0 4px rgba(0, 0, 0, .7);
+    }
+
+    .role label:first-child .btn {
+      border-width: 1px;
+      border-radius: 3px 0 0 3px;
+    }
+
+    .role label:last-child .btn {
+      border-radius: 0 3px 3px 0;
+    }
+
+    .material-icons {
+      vertical-align: middle;
+    }
+
+    .toggle-on,
+    .toggle-off {
+      font-size: 3rem;
+      line-height: 1rem;
+    }
+
+    .toggle-on {
+      color: green;
+    }
+
+    .toggle-off {
+      color: #aaa;
+    }
+
+    .removed h2 {
+      color: red;
+      text-decoration: line-through;
+    }
+
+    .removed .show-in-toc {
+      opacity: 10%;
+    }
+
+    .not-in-toc h2 {
+      opacity: 0.5;
+    }
+
+    .toc-preview > ul {
+      padding-left: 1rem;
+    }
+
+    .toc-preview li {
+      margin: 0.5rem 0;
+    }
+
+    .toc-preview .filename {
+      display: block;
+      color: var(--gray);
+    }
+
+    nav ul {
+      display: flex;
+      padding: 0;
+      border-bottom: 1px solid gray;
+    }
+
+    nav ul li {
+      cursor: pointer;
+      display: block;
+      padding: 0.5rem 1rem;
+    }
+
+    nav ul li.active {
+      border-bottom: 2px solid gray;
     }
 
     #report {
@@ -37,34 +208,101 @@
     <div id="app">
       <h1>Conversion output: {{ epub.metadata.title }}</h1>
 
-      <vue-nestable v-model="params.structure">
-        <vue-nestable-handle
-          slot-scope="{ item }"
-          :item="item">
-          {{ item.title }}<br>
-          {{ item.filename }}
+      <nav>
+        <ul>
+          <li v-on:click="navToStructure" :class="[tab == 'structure' ? 'active' : '']">Structure</li>
+          <li v-on:click="navToFormat" :class="[tab == 'format' ? 'active' : '']">Format</li>
+          <li v-on:click="navToData" :class="[tab == 'data' ? 'active' : '']">Data export</li>
+        </ul>
+      </nav>
 
-          <label>
-            <select type="checkbox" size="4" v-model="item.role">
-              <option>chapter</option>
-              <option>cover</option>
-              <option>colophon</option>
-              <option>remove</option>
-            </select>
-          </label>
 
-          <label>
-            <input type="checkbox" v-model="item.inToc"> TOC
-          </label>
-        </vue-nestable-handle>
-      </vue-nestable>
+      <div v-if="tab == 'structure'" class="structure">
+        <vue-nestable v-model="params.structure">
+          <vue-nestable-handle
+            slot-scope="{ item }"
+            :item="item">
 
-      <div class="els">
+            <div v-bind:class="[ (item.role == 'remove') ? 'removed' : '', !item.inToc ? 'not-in-toc' : '' ]">
+              <h2>
+                <span v-if="item.role == 'chapter'" class="material-icons">subject</span>
+                <span v-if="item.role == 'cover'" class="material-icons">photo</span>
+                <span v-if="item.role == 'colophon'" class="material-icons">copyright</span>
+                <span v-if="item.role == 'remove'" class="material-icons">close</span>
+
+                {{ item.filename }}: {{ item.title ? item.title : "—" }}</h2>
+
+              <div class="controls">
+                <div class="role">
+                  <label title="chapter">
+                    <input type="radio" value="chapter" v-model="item.role">
+                    <span class="btn">
+                      <span class="material-icons">subject</span> <span class="desc">chapter</span>
+                    </span>
+                  </label>
+
+                  <label title="cover">
+                    <input type="radio" value="cover" v-model="item.role">
+                    <span class="btn">
+                      <span class="material-icons">photo</span> <span class="desc">cover</span>
+                    </span>
+                  </label>
+
+                  <label title="colophon">
+                    <input type="radio" value="colophon" v-model="item.role">
+                    <span class="btn">
+                      <span class="material-icons">copyright</span> <span class="desc">colophon</span>
+                    </span>
+                  </label>
+
+                  <label title="remove">
+                    <input type="radio" value="remove" v-model="item.role">
+                    <span class="btn">
+                      <span class="material-icons">close</span> <span class="desc">remove</span>
+                    </span>
+                  </label>
+                </div>
+
+                <label class="show-in-toc">
+                  <span class="btn">
+                    <span class="material-icons">list</span> <span>in TOC</span>
+                  </span>
+
+                  <input type="checkbox" v-model="item.inToc">
+
+                  <span v-if="item.inToc" class="material-icons toggle-on">toggle_on</span>
+                  <span v-else class="material-icons toggle-off">toggle_off</span>
+                </label>
+
+                <label v-if="item.children && item.children.length" class="numbered-children">
+                  <input type="checkbox" v-model="item.numberedChildren">
+
+                  <span v-if="item.numberedChildren" class="material-icons">format_list_numbered</span>
+                  <span v-else class="material-icons">reorder</span>
+                </label>
+              </div>
+            </div>
+          </vue-nestable-handle>
+        </vue-nestable>
+
+        <div class="toc-preview">
+          <h2>TOC preview</h2>
+          <ul>
+            <toc-item v-for="item in params.structure" :item="item" :key="item.filename"></toc-item>
+          </ul>
+        </div>
+      </div>
+
+      <div v-if="tab == 'format'" class="els">
         <autocomplete v-for="el in paramKeys" v-bind:key="el" :label="el" rows="5" :items="epub.classes" textarea="true" v-model="params.elements[el]"></autocomplete>
       </div>
 
-      <textarea id="report">{{ exportedData }}</textarea>
 
+      <div v-if="tab == 'data'">
+        <button id="copy-report">Copy all data</button>
+
+        <textarea id="report">{{ exportedData }}</textarea>
+      </div>
     </div>
   </main>
 
