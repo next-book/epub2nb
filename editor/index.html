@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Conversion report</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <link rel="stylesheet" href="./assets/autocomplete.css" />
+  <link rel="stylesheet" href="./assets/nestable.css" />
+
+  <style>
+    .els {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    #report {
+      font-family: monospace;
+      width: 100%;
+      height: 40vh;
+    }
+  </style>
+
+</head>
+<body>
+  <script type="text/x-template" id="autocomplete-tpl">
+    <div class="autocomplete">
+      <label :for="id">{{label}}</label>
+      <textarea :id="id" :rows="rows" :cols="cols" class="autocomplete-input" :placeholder="placeholder" @focusout="focusout" @focus="focus" @keydown.13="chooseItem" @keydown.tab="chooseItem" @keydown.40="moveDown" @keydown.38="moveUp" v-bind:value="value" v-on:input="$emit('input', $event.target.value)"></textarea>
+      <ul :class="{'autocomplete-list': true, [id+'-list']: true}" v-if="searchMatch.length > 0">
+        <li :class="{active: selectedIndex === index}" v-for="(result, index) in searchMatch" @click="selectItem(index), chooseItem()" v-html="highlightWord(result)">
+        </li>
+      </ul>
+    </div>
+  </script>
+
+  <main>
+    <div id="app">
+      <h1>Conversion output: {{ epub.metadata.title }}</h1>
+
+      <vue-nestable v-model="params.structure">
+        <vue-nestable-handle
+          slot-scope="{ item }"
+          :item="item">
+          {{ item.title }}<br>
+          {{ item.filename }}
+
+          <label>
+            <select type="checkbox" size="4" v-model="item.role">
+              <option>chapter</option>
+              <option>cover</option>
+              <option>colophon</option>
+              <option>remove</option>
+            </select>
+          </label>
+
+          <label>
+            <input type="checkbox" v-model="item.inToc"> TOC
+          </label>
+        </vue-nestable-handle>
+      </vue-nestable>
+
+      <div class="els">
+        <autocomplete v-for="el in paramKeys" v-bind:key="el" :label="el" rows="5" :items="epub.classes" textarea="true" v-model="params.elements[el]"></autocomplete>
+      </div>
+
+      <textarea id="report">{{ exportedData }}</textarea>
+
+    </div>
+  </main>
+
+  <script src="./assets/editor.js"></script>
+</body>
+</html>
