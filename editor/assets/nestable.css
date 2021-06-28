@@ -79,6 +79,3 @@
 .nestable [draggable='true'] {
   cursor: move;
 }
-.nestable-handle {
-  display: inline;
-}
