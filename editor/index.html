@@ -18,9 +18,17 @@
       font-size: 14px;
     }
 
+    textarea, input {
+      font-size: 1rem;
+      -webkit-appearance: none;
+      padding: 0.25rem;
+      border: 1px solid gray;
+      border-radius: 3px;
+      box-sizing: border-box;
+      margin: 0;
+    }
+
     .els {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
     }
 
     .nestable h2 {
@@ -184,38 +192,168 @@
       border-bottom: 2px solid gray;
     }
 
+    .metadata {
+      display: grid;
+      grid-column-gap: 2rem;
+      grid-row-gap: 0.5rem;
+      grid-template-columns: 1fr 1fr;
+    }
+
+
+    .metadata h2 {
+      margin: 2rem 0 0;
+      grid-column: 1 / -1;
+    }
+
+    .metadata label {
+      display: block;
+    }
+
+    .metadata input {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .metadata .chapters,
+    .metadata .chapters li div {
+      display: block;
+      padding: 0;
+      grid-column: 1 / -1;
+    }
+
+    .metadata .chapters li div {
+      margin-left: 2rem;
+    }
+
+    .metadata .chapters ol,
+    .metadata .chapters ul {
+      display: block;
+      padding: 0;
+    }
+
+    .metadata .chapters li {
+      display: grid;
+      grid-template-columns: 1fr 30vw 30vw;
+      grid-gap: 2rem;
+      align-items: center;
+
+      border-top: 1px solid gray;
+      padding: 0.5rem 0;
+    }
+
+    .copyButton {
+      margin: 0;
+    }
+
+    .paramsLink {
+      margin: 0;
+      float: right;
+    }
+
     #report {
       font-family: monospace;
       width: 100%;
       height: 40vh;
     }
-  </style>
 
+    .view-chapter {
+      display: block;
+      background: white;
+      z-index: 2;
+      position: fixed;
+      top: 50px;
+      left: 50px;
+      bottom: 50px;
+      right: 50px;
+      border: 1px solid gray;
+      border-radius: 3px;
+    }
+
+    .view-chapter-close {
+      line-height: 2rem;
+      height: 2rem;
+      position: absolute;
+      top: 0;
+      right: 1rem;
+      cursor: pointer;
+    }
+
+    .view-chapter iframe {
+      display: block;
+      border: solid gray;
+      border-width: 1px 0 0;
+
+      position: absolute;
+      width: calc(100% - 2rem);
+      height: calc(100% - 3rem);
+      top: 2rem;
+      bottom: 0;
+      left: 1rem;
+    }
+
+    .unused-classes {
+      padding: 0;
+    }
+
+    .unused-classes li {
+      list-style-type: none;
+      margin-bottom: 0.5rem;
+    }
+
+    .unused-classes .material-icons {
+      cursor: pointer;
+    }
+
+    .css-preview {
+      border: 1px solid gray;
+      padding: 1rem;
+      border-radius: 3px;
+      margin: 1rem 0;
+    }
+
+    .css-preview figure {
+      margin: 0 0 2rem;
+    }
+
+    .css-preview .preview-wrapper {
+      border: 1px dashed gray;
+      background: white;
+      padding: 1rem;
+    }
+  </style>
 </head>
 <body>
   <script type="text/x-template" id="autocomplete-tpl">
     <div class="autocomplete">
-      <label :for="id">{{label}}</label>
-      <textarea :id="id" :rows="rows" :cols="cols" class="autocomplete-input" :placeholder="placeholder" @focusout="focusout" @focus="focus" @keydown.13="chooseItem" @keydown.tab="chooseItem" @keydown.40="moveDown" @keydown.38="moveUp" v-bind:value="value" v-on:input="$emit('input', $event.target.value)"></textarea>
-      <ul :class="{'autocomplete-list': true, [id+'-list']: true}" v-if="searchMatch.length > 0">
-        <li :class="{active: selectedIndex === index}" v-for="(result, index) in searchMatch" @click="selectItem(index), chooseItem()" v-html="highlightWord(result)">
-        </li>
-      </ul>
+      <label :for="id">{{label}}<br>
+        <textarea :id="id" :rows="rows" :cols="cols" class="autocomplete-input" :placeholder="placeholder" @focusout="focusout" @focus="focus" @keydown.13="chooseItem" @keydown.tab="chooseItem" @keydown.40="moveDown" @keydown.38="moveUp" v-bind:value="value" v-on:input="$emit('input', $event.target.value)"></textarea>
+        <ul :class="{'autocomplete-list': true, [id+'-list']: true}" v-if="searchMatch.length > 0">
+          <li :class="{active: selectedIndex === index}" v-for="(result, index) in searchMatch" @click="selectItem(index), chooseItem()" v-html="highlightWord(result)">
+          </li>
+        </ul>
+      </label>
+      <div class="autocomplete-matching">
+        <p><b>{{ matching.length }} classes</b></p>
+        <ul>
+          <li v-for="name in matching">{{ name }}</li>
+        </ul>
+      </div>
     </div>
   </script>
 
   <main>
     <div id="app">
-      <h1>Conversion output: {{ epub.metadata.title }}</h1>
+      <h1>Conversion: {{ epub.metadata.title }}</h1>
 
       <nav>
         <ul>
+          <li v-on:click="navToMeta" :class="[tab == 'metadata' ? 'active' : '']">Metadata</li>
           <li v-on:click="navToStructure" :class="[tab == 'structure' ? 'active' : '']">Structure</li>
           <li v-on:click="navToFormat" :class="[tab == 'format' ? 'active' : '']">Format</li>
           <li v-on:click="navToData" :class="[tab == 'data' ? 'active' : '']">Data export</li>
         </ul>
       </nav>
-
 
       <div v-if="tab == 'structure'" class="structure">
         <vue-nestable v-model="params.structure">
@@ -225,12 +363,12 @@
 
             <div v-bind:class="[ (item.role == 'remove') ? 'removed' : '', !item.inToc ? 'not-in-toc' : '' ]">
               <h2>
-                <span v-if="item.role == 'chapter'" class="material-icons">subject</span>
-                <span v-if="item.role == 'cover'" class="material-icons">photo</span>
-                <span v-if="item.role == 'colophon'" class="material-icons">copyright</span>
-                <span v-if="item.role == 'remove'" class="material-icons">close</span>
+                <icon :role="item.role"></icon>
 
-                {{ item.filename }}: {{ item.title ? item.title : "—" }}</h2>
+                <span class="material-icons" v-on:click="() => showPreview(item.xhtml)">visibility</span>
+
+                {{ item.filename }}: {{ item.title ? item.title : "—" }}
+              </h2>
 
               <div class="controls">
                 <div class="role">
@@ -288,20 +426,77 @@
         <div class="toc-preview">
           <h2>TOC preview</h2>
           <ul>
-            <toc-item v-for="item in params.structure" :item="item" :key="item.filename"></toc-item>
+            <toc-item v-for="item in params.structure" :item="item" :key="item.filename" :top="true"></toc-item>
+          </ul>
+
+          <hr>
+
+          <ul>
+            <li v-if="params.structure[0].role === 'cover'">
+              <span class="filename">{{params.structure[0].filename}}</span>
+              <span class="title">Cover</span>
+            </li>
+
+            <li v-for="item in params.structure" v-if="item.role === 'colophon'">
+              <span class="filename">{{item.filename}}</span>
+              <span class="title">Colophon (will be merged)</span>
+            </li>
           </ul>
         </div>
       </div>
 
-      <div v-if="tab == 'format'" class="els">
-        <autocomplete v-for="el in paramKeys" v-bind:key="el" :label="el" rows="5" :items="epub.classes" textarea="true" v-model="params.elements[el]"></autocomplete>
+      <div class="metadata" v-if="tab == 'metadata'">
+        <label>
+          Title
+          <input type="text" v-model="params.metadata.title">
+        </label>
+        <label>
+          Subtitle
+          <input type="text" v-model="params.metadata.subtitle">
+        </label>
+        <label>
+          Author
+          <input type="text" v-model="params.metadata.author">
+        </label>
+        <label>
+          Publisher
+          <input type="text" v-model="params.metadata.publisher">
+        </label>
+        <label>
+          ISBN
+          <input type="text" v-model="params.metadata.isbn">
+        </label>
+        <label>
+          Identifier
+          <input type="text" v-model="params.metadata.identifier">
+        </label>
+
+        <h2>Chapter titles</h2>
+        <ul class="chapters">
+          <toc-item-edit-title v-for="item in params.structure" :item="item" :key="item.filename" @preview="showPreview"></toc-item-edit-title>
+        </ul>
       </div>
 
+      <div v-if="tab == 'format'" class="els">
+        <autocomplete v-for="el in paramKeys" v-bind:key="el" :label="el" rows="5" :items="epub.classes" textarea="true" v-model="params.elements[el]"></autocomplete>
+
+        <h2>Unused classes</h2>
+        <ul class="unused-classes">
+          <li v-for="name in unmatchedClassNames"><css-preview :name="name" :styles="css"></css-preview></li>
+        </ul>
+      </div>
 
       <div v-if="tab == 'data'">
-        <button id="copy-report">Copy all data</button>
+        <p v-if="paramsUrl" class="paramsLink"><a target="_blank" :href="paramsUrl">params.json in the repository</a></p>
+
+        <p class="copyButton"><button id="copy-report" v-on:click="copyReport">Copy all data</button></p>
 
         <textarea id="report">{{ exportedData }}</textarea>
+      </div>
+
+      <div v-if="previewUrl != null" class="view-chapter">
+        <div class="view-chapter-close" v-on:click="showPreview(null)">close</div>
+        <iframe :src="previewUrl"></iframe>
       </div>
     </div>
   </main>

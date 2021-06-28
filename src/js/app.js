@@ -10,7 +10,7 @@ const epub2readium = require('./epub2readium');
 
 const PKG_DIR = path.join(__dirname, '../../');
 
-const convertBook = dir => {
+const convertBook = (dir, github) => {
   const { readiumDir, nbDir } = prepDirs(dir);
 
   const epub = findEpub(dir);
@@ -29,7 +29,7 @@ const convertBook = dir => {
       fs.writeFileSync(path.join(nbDir, chapter.out), text);
     });
 
-    writeParams(getParamsPath(dir), params, manifest, chapters);
+    writeParams(getParamsPath(dir), params, manifest, chapters, github);
 
     copyEditorFiles(dir);
   });
@@ -53,7 +53,16 @@ function loadManifest(dir) {
   return JSON.parse(fs.readFileSync(path.join(dir, 'manifest.json'), 'utf8'));
 }
 
-function writeParams(paramsFile, params, manifest, chapters) {
+function getGhData(github) {
+  if (!github || github.indexOf('/') < 1) return null;
+  const [user, repo] = github.split('/');
+  return {
+    user,
+    repo,
+  };
+}
+
+function writeParams(paramsFile, params, manifest, chapters, github) {
   const allClasses = compileClasses(chapters);
 
   fs.writeFileSync(
@@ -69,11 +78,14 @@ function writeParams(paramsFile, params, manifest, chapters) {
             publisher: manifest.metadata.publisher,
             modified: manifest.metadata.modified,
           },
-          files: chapters.map(chapter => ({
-            title: chapter.dom('p').first().text(),
+          chapters: chapters.map(chapter => ({
+            title: chapter.dom('h1, p').first().text(),
             filename: chapter.out,
+            xhtml: path.parse(chapter.src).name + path.parse(chapter.src).ext,
           })),
+          resources: manifest.resources,
           classes: allClasses,
+          github: getGhData(github),
         },
       },
       null,

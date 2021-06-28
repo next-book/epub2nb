@@ -33,13 +33,24 @@ const Autocomplete = {
         const element = document.querySelectorAll('.' + _self.id + '-list');
 
         if (element[0]) {
-          element[0].style.top = caret.top + 100 + 'px';
+          element[0].style.top = caret.top + 40 + 'px';
           element[0].style.left = caret.left + 20 + 'px';
         }
       }
     });
   },
   computed: {
+    matching() {
+      const tokens = this.value.replace(/(\r\n|\n|\r)/gm, ' ').split(' ');
+      const matches = [];
+
+      tokens.forEach(token => {
+        const tMatches = this.items.filter(item => item.match(new RegExp(`^${token}$`)));
+        matches.push(...tMatches);
+      });
+
+      return matches;
+    },
     listToSearch() {
       if (typeof this.items !== 'undefined' && this.items.length > 0) {
         return this.items;
@@ -48,11 +59,9 @@ const Autocomplete = {
       }
     },
     currentWord() {
-      //console.log(this.value.replace(/(\r\n|\n|\r)/gm, ' ').split(' ')[this.wordIndex]);
       return this.value.replace(/(\r\n|\n|\r)/gm, ' ').split(' ')[this.wordIndex];
     },
     inputSplitted() {
-      //console.log(this.value.replace(/(\r\n|\n|\r)/gm, ' ').split(' ')[this.wordIndex]);
       return this.value.replace(/(\r\n|\n|\r)/gm, ' ').split(' ');
     },
   },
@@ -113,7 +122,6 @@ const Autocomplete = {
     },
     focus() {
       this.searchMatch = [];
-      console.log(this.currentWord);
 
       if (this.currentWord !== '') {
         this.searchMatch = this.listToSearch.filter(el => el.indexOf(this.currentWord) >= 0);
@@ -126,6 +134,7 @@ const Autocomplete = {
 };
 
 // Thanks: https://github.com/component/textarea-caret-position
+// Licensed under the MIT License
 (function () {
   function e(b, e, f) {
     if (!h)
