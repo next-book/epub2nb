@@ -1,8 +1,8 @@
 {
   "name": "@next-book/epub2nb",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Convert EPUB to next-book content files.",
-  "main": "./app.js",
+  "main": "./src/js/app.js",
   "bin": {
     "epub2nb": "./bin/cli.js"
   },
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/next-book/boilerplate.git"
+    "url": "git+https://github.com/next-book/epub2nb.git"
   },
   "author": "Jan Martinek",
   "license": "GNU-GPLv3",
   "bugs": {
-    "url": "https://github.com/next-book/boilerplate/issues"
+    "url": "https://github.com/next-book/epub2nb/issues"
   },
-  "homepage": "https://github.com/next-book/boilerplate#readme",
+  "homepage": "https://github.com/next-book/epub2nb#readme",
   "dependencies": {
     "async": "^3.2.0",
     "cheerio": "^1.0.0-rc.10",

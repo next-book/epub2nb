@@ -1,0 +1,26 @@
+name: Publish to NPM
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    env:
+      INPUT_TOKEN: '' # https://github.com/JS-DevTools/npm-publish/issues/15
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+
+      - run: cd editor && npm install && npm run bundle && cd ..
+
+      - uses: JS-DevTools/npm-publish@v1
+        with:
+          access: public
+          token: ${{ secrets.NPM_TOKEN }}

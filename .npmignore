@@ -1,0 +1,6 @@
+_books/*
+node_modules/*
+editor/node_modules/*
+editor/src/*
+editor/package*
+
