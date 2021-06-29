@@ -29,7 +29,10 @@ const convertBook = (dir, github) => {
       fs.writeFileSync(path.join(nbDir, chapter.out), text);
     });
 
-    writeParams(getParamsPath(dir), params, manifest, chapters, github);
+    const paramsData = compileParams(params, manifest, chapters, github);
+
+    fs.writeFileSync(getParamsPath(dir), paramsData);
+    fs.writeFileSync(path.join(nbDir, 'params.json'), paramsData);
 
     copyEditorFiles(dir);
   });
@@ -62,35 +65,32 @@ function getGhData(github) {
   };
 }
 
-function writeParams(paramsFile, params, manifest, chapters, github) {
+function compileParams(params, manifest, chapters, github) {
   const allClasses = compileClasses(chapters);
 
-  fs.writeFileSync(
-    paramsFile,
-    JSON.stringify(
-      {
-        params: params.params,
-        epub: {
-          metadata: {
-            title: manifest.metadata.title,
-            identifier: manifest.metadata.identifier,
-            author: manifest.metadata.author,
-            publisher: manifest.metadata.publisher,
-            modified: manifest.metadata.modified,
-          },
-          chapters: chapters.map(chapter => ({
-            title: chapter.dom('h1, p').first().text(),
-            filename: chapter.out,
-            xhtml: path.parse(chapter.src).name + path.parse(chapter.src).ext,
-          })),
-          resources: manifest.resources,
-          classes: allClasses,
-          github: getGhData(github),
+  return JSON.stringify(
+    {
+      params: params.params,
+      epub: {
+        metadata: {
+          title: manifest.metadata.title,
+          identifier: manifest.metadata.identifier,
+          author: manifest.metadata.author,
+          publisher: manifest.metadata.publisher,
+          modified: manifest.metadata.modified,
         },
+        chapters: chapters.map(chapter => ({
+          title: chapter.dom('h1, p').first().text(),
+          filename: chapter.out,
+          xhtml: path.parse(chapter.src).name + path.parse(chapter.src).ext,
+        })),
+        resources: manifest.resources,
+        classes: allClasses,
+        github: getGhData(github),
       },
-      null,
-      2
-    )
+    },
+    null,
+    2
   );
 }
 
