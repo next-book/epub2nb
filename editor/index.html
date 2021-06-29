@@ -425,8 +425,9 @@
 
         <div class="toc-preview">
           <h2>TOC preview</h2>
+          <p>Note: Preview does not include sub-headings inside chapters.</p>
           <ul>
-            <toc-item v-for="item in params.structure" :item="item" :key="item.filename" :top="true"></toc-item>
+            <toc-item v-for="(item, index) in params.structure" :item="item" :key="item.filename" :possible-book-cover="index === 0"></toc-item>
           </ul>
 
           <hr>
@@ -434,7 +435,7 @@
           <ul>
             <li v-if="params.structure[0].role === 'cover'">
               <span class="filename">{{params.structure[0].filename}}</span>
-              <span class="title">Cover</span>
+              <span class="title">Book cover</span>
             </li>
 
             <li v-for="item in params.structure" v-if="item.role === 'colophon'">

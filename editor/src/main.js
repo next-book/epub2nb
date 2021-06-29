@@ -54,7 +54,7 @@ Vue.component('css-preview', {
 
 Vue.component('toc-item', {
   template: `
-    <li v-if="item.role !== 'remove' && item.role !== 'colophon' && item.inToc && !(top && item.role === 'cover')">
+    <li v-if="item.role !== 'remove' && item.role !== 'colophon' && item.inToc && !(possibleBookCover && item.role === 'cover')">
       <span class="filename">{{item.filename}}</span>
       <span class="title">{{item.title}}</span>
       <div v-if="item.children && item.children.length > 1">
@@ -67,7 +67,7 @@ Vue.component('toc-item', {
       </div>
     </li>
   `,
-  props: ['item', 'top'],
+  props: ['item', 'possibleBookCover'],
 });
 
 Vue.component('icon', {
