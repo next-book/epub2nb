@@ -3,6 +3,7 @@ const find = require('find');
 const path = require('path');
 const fsExtra = require('fs-extra');
 const cheerio = require('cheerio');
+const yaml = require('js-yaml');
 
 const analyze = require('./analyze');
 const convertChapter = require('./convert-chapter');
@@ -11,7 +12,7 @@ const epub2readium = require('./epub2readium');
 const PKG_DIR = path.join(__dirname, '../../');
 
 const convertBook = (dir, github) => {
-  const { readiumDir, nbDir } = prepDirs(dir);
+  const { readiumDir, nbDir, resourcesDir } = prepDirs(dir);
 
   const epub = findEpub(dir);
 
@@ -23,20 +24,85 @@ const convertBook = (dir, github) => {
     const manifest = loadManifest(readiumDir);
     const chapters = loadChapters(readiumDir, manifest);
     const params = loadParams(dir);
+    const resources = [];
 
-    chapters.forEach(chapter => {
-      const text = convertChapter(chapter, params);
-      fs.writeFileSync(path.join(nbDir, chapter.out), text);
+    manifest.resources.forEach(res => {
+      if (res.type.match(/image/)) {
+        const name = path.parse(res.href).base;
+
+        fs.copyFileSync(path.join(readiumDir, res.href), path.join(resourcesDir, name));
+
+        resources.push(name);
+      }
     });
 
-    const paramsData = compileParams(params, manifest, chapters, github);
+    const chapterTexts = chapters.reduce((acc, chapter, index) => {
+      acc[chapter.out] = convertChapter(chapter, params, resources);
+      return acc;
+    }, {});
 
+    saveChapters(chapterTexts, params.params.structure, nbDir, 0);
+
+    const paramsData = compileParams(params, manifest, chapters, resources, github);
     fs.writeFileSync(getParamsPath(dir), paramsData);
-    fs.writeFileSync(path.join(nbDir, 'params.json'), paramsData);
 
     copyEditorFiles(dir);
+
+    const bookFileText = createBookFile(params.params, chapterTexts);
+    fs.writeFileSync(path.join(nbDir, '_book.md'), bookFileText);
   });
 };
+
+function createBookFile(params, chapterTexts) {
+  const frontMatter = yaml.dump({
+    outputs: 'meta',
+    slug: 'book',
+    languageCode: params.metadata.languageCode,
+    meta: params.metadata,
+    chapters: getChapterTitles(params.structure, 0),
+    static: ['style', 'scripts', 'title', 'fonts', 'resources', 'favicon.png'],
+  });
+
+  return `---\n${frontMatter}\n---\n`;
+}
+
+function getChapterTitles(structure, level) {
+  return structure.reduce((acc, chapter, index) => {
+    if (
+      chapter.role === 'remove' ||
+      chapter.role === 'colophon' ||
+      (chapter.role === 'cover' && index === 0)
+    )
+      return acc;
+    else acc.push(chapter.filename.replace(/.md$/, '.html'));
+
+    if (structure.children && structure.children.length > 0)
+      acc.push(...getChapterTitles(structure.children, level + 1));
+
+    return acc;
+  }, []);
+}
+
+function saveChapters(chapterTexts, structure, nbDir, level) {
+  const colophon = [];
+
+  structure.forEach((chapter, index) => {
+    if (chapter.role === 'remove') {
+      return;
+    } else if (chapter.role === 'colophon') {
+      colophon.push(chapterTexts[chapter.filename]);
+    } else if (chapter.role === 'cover' && index === 0) {
+      fs.writeFileSync(path.join(nbDir, '_index.md'), chapterTexts[chapter.filename]);
+    } else {
+      fs.writeFileSync(path.join(nbDir, chapter.filename), chapterTexts[chapter.filename]);
+    }
+
+    if (structure.children && structure.children.length > 0)
+      saveChapters(chapterTexts, structure.children, nbDir, level + 1);
+  });
+
+  fs.writeFileSync(path.join(nbDir, 'colophon.md'), colophon.join('\n\n'));
+}
 
 function copyEditorFiles(dir) {
   fs.copyFileSync(path.join(PKG_DIR, 'editor/index.html'), path.join(dir, 'index.html'));
@@ -49,7 +115,7 @@ function getParamsPath(dir) {
 
 function loadParams(dir) {
   const path = getParamsPath(dir);
-  return fs.existsSync(path) ? fs.readFileSync(path) : {};
+  return fs.existsSync(path) ? JSON.parse(fs.readFileSync(path, 'utf-8')) : {};
 }
 
 function loadManifest(dir) {
@@ -97,6 +163,7 @@ function compileParams(params, manifest, chapters, github) {
 function prepDirs(dir) {
   const readiumDir = path.join(dir, 'readium');
   const nbDir = path.join(dir, 'content');
+  const resourcesDir = path.join(dir, 'content/resources');
 
   if (fs.existsSync(readiumDir)) fsExtra.removeSync(readiumDir);
   fs.mkdirSync(readiumDir);
@@ -104,7 +171,10 @@ function prepDirs(dir) {
   if (fs.existsSync(nbDir)) fsExtra.removeSync(nbDir);
   fs.mkdirSync(nbDir);
 
-  return { readiumDir, nbDir };
+  fs.mkdirSync(resourcesDir);
+  fs.writeFileSync(path.join(resourcesDir, '_index.md'), '');
+
+  return { readiumDir, nbDir, resourcesDir };
 }
 
 const loadChapters = (readiumDir, manifest) => {

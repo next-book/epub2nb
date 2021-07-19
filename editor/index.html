@@ -321,6 +321,10 @@
       background: white;
       padding: 1rem;
     }
+
+    .clickable {
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -379,10 +383,10 @@
                     </span>
                   </label>
 
-                  <label title="cover">
-                    <input type="radio" value="cover" v-model="item.role">
+                  <label title="break">
+                    <input type="radio" value="break" v-model="item.role">
                     <span class="btn">
-                      <span class="material-icons">photo</span> <span class="desc">cover</span>
+                      <span class="material-icons">photo</span> <span class="desc">break</span>
                     </span>
                   </label>
 
@@ -427,13 +431,13 @@
           <h2>TOC preview</h2>
           <p>Note: Preview does not include sub-headings inside chapters.</p>
           <ul>
-            <toc-item v-for="(item, index) in params.structure" :item="item" :key="item.filename" :possible-book-cover="index === 0"></toc-item>
+            <toc-item v-for="(item, index) in params.structure" :item="item" :key="item.filename" :possible-cover="index === 0"></toc-item>
           </ul>
 
           <hr>
 
           <ul>
-            <li v-if="params.structure[0].role === 'cover'">
+            <li v-if="params.structure[0].role === 'break'">
               <span class="filename">{{params.structure[0].filename}}</span>
               <span class="title">Book cover</span>
             </li>
@@ -471,6 +475,13 @@
           Identifier
           <input type="text" v-model="params.metadata.identifier">
         </label>
+        <label>
+          Language<br>
+          <select v-model="params.metadata.languageCode">
+            <option value="cs">czech</option>
+            <option value="en">english</option>
+          </select>
+        </label>
 
         <h2>Chapter titles</h2>
         <ul class="chapters">
@@ -479,7 +490,7 @@
       </div>
 
       <div v-if="tab == 'format'" class="els">
-        <autocomplete v-for="el in paramKeys" v-bind:key="el" :label="el" rows="5" :items="epub.classes" textarea="true" v-model="params.elements[el]"></autocomplete>
+        <autocomplete v-for="el in elements" v-bind:key="el.name" :label="el.title" rows="5" :items="epub.classes" textarea="true" v-model="params.elements[el.name]"></autocomplete>
 
         <h2>Unused classes</h2>
         <ul class="unused-classes">

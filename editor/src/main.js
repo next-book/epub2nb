@@ -54,7 +54,7 @@ Vue.component('css-preview', {
 
 Vue.component('toc-item', {
   template: `
-    <li v-if="item.role !== 'remove' && item.role !== 'colophon' && item.inToc && !(possibleBookCover && item.role === 'cover')">
+    <li v-if="item.role !== 'remove' && item.role !== 'colophon' && item.inToc && !(possibleCover && item.role === 'break')">
       <span class="filename">{{item.filename}}</span>
       <span class="title">{{item.title}}</span>
       <div v-if="item.children && item.children.length > 1">
@@ -67,13 +67,13 @@ Vue.component('toc-item', {
       </div>
     </li>
   `,
-  props: ['item', 'possibleBookCover'],
+  props: ['item', 'possibleCover'],
 });
 
 Vue.component('icon', {
   template: `
     <span v-if="role == 'chapter'" class="material-icons">subject</span>
-    <span v-else-if="role == 'cover'" class="material-icons">photo</span>
+    <span v-else-if="role == 'break'" class="material-icons">photo</span>
     <span v-else-if="role == 'colophon'" class="material-icons">copyright</span>
     <span v-else-if="role == 'remove'" class="material-icons">close</span>
     `,
@@ -87,6 +87,8 @@ Vue.component('toc-item-edit-title', {
         <icon :role="item.role"></icon>
         <span class="material-icons" v-on:click="$emit('preview', item.xhtml)">visibility</span>
         {{item.filename}}
+        <span v-on:click="toggleRemove" class="material-icons clickable">close</span>
+
       </span>
       <label>
         Title
@@ -107,24 +109,41 @@ Vue.component('toc-item-edit-title', {
       </div>
     </li>
   `,
+  methods: {
+    toggleRemove: function () {
+      if (this.item.role === 'remove') this.item.role = 'chapter';
+      else this.item.role = 'remove';
+    },
+  },
   props: ['item'],
 });
 
-var elements = {
-  title: '',
-  subtitle: '',
-  h2: '',
-  h3: '',
-  h4: '',
-  hr: '',
-  invisibleHr: '',
-  blockquote: '',
-  figure: '',
-  em: '',
-  strong: '',
-  remove: '',
-  ignore: '',
-};
+var elements = [
+  { name: 'title', title: 'Chapter title (H1)' },
+  { name: 'subtitle', title: 'Chapter subtitle' },
+  { name: 'h2', title: 'Heading 1 (H2)' },
+  { name: 'h3', title: 'Heading 2 (H3)' },
+  { name: 'h4', title: 'Heading 3 (H4)' },
+  { name: 'hr', title: 'Fleuron' },
+  { name: 'hrBefore', title: 'Fleuron before' },
+  { name: 'hrAfter', title: 'Fleuron after' },
+  { name: 'invisibleHr', title: 'Spacer' },
+  { name: 'invisibleHrBefore', title: 'Spacer before' },
+  { name: 'invisibleHrAfter', title: 'Spacer after' },
+  { name: 'blockquote', title: 'Block quote' },
+  { name: 'figure', title: 'Figure' },
+  { name: 'em', title: 'Emphasize (italics)' },
+  { name: 'strong', title: 'Important (bold)' },
+  { name: 'remove', title: 'Remove element from document' },
+  { name: 'ignore', title: 'Ignore this class' },
+];
+
+function prepElObj(elements) {
+  return elements.reduce((acc, el) => {
+    acc[el.name] = '';
+    return acc;
+  }, {});
+}
 
 function prepStructure(chapters) {
   return chapters.map((chapter, index) => ({
@@ -144,7 +163,6 @@ function loadCss(resources, setter) {
   return fetch(`readium/${url}`)
     .then(response => response.text())
     .then(text => {
-      console.log(toJSON(text));
       setter(toJSON(text));
     });
 }
@@ -157,12 +175,17 @@ fetch('./params.json')
       data: {
         previewUrl: null,
         tab: 'metadata',
+        elements,
         params:
           data.params && Object.keys(data.params).length
-            ? data.params
+            ? {
+                metadata: data.params.metadata,
+                elements: { ...prepElObj(elements), ...data.params.elements },
+                structure: data.params.structure,
+              }
             : {
                 metadata: data.epub.metadata,
-                elements,
+                elements: prepElObj(elements),
                 structure: prepStructure(data.epub.chapters),
               },
         epub: data.epub,
