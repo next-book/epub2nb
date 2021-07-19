@@ -41,7 +41,7 @@ const convertBook = (dir, github) => {
       return acc;
     }, {});
 
-    saveChapters(chapterTexts, params.params.structure, nbDir, 0);
+    saveChapters(chapterTexts, params.params ? params.params.structure : [], nbDir, 0);
 
     const paramsData = compileParams(params, manifest, chapters, resources, github);
     fs.writeFileSync(getParamsPath(dir), paramsData);
@@ -57,9 +57,9 @@ function createBookFile(params, chapterTexts) {
   const frontMatter = yaml.dump({
     outputs: 'meta',
     slug: 'book',
-    languageCode: params.metadata.languageCode,
-    meta: params.metadata,
-    chapters: getChapterTitles(params.structure, 0),
+    languageCode: params && params.metadata ? params.metadata.languageCode : 'en',
+    meta: params && params.metadata,
+    chapters: getChapterTitles(params ? params.structure : [], 0),
     static: ['style', 'scripts', 'title', 'fonts', 'resources', 'favicon.png'],
   });
 
