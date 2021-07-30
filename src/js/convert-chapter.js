@@ -82,6 +82,7 @@ const removeElements = ($, classes) => $(getClassSelector(classes)).remove();
 
 const getClassSelector = classes =>
   classes
+    .trim()
     .split(/\s+/)
     .map(className => `.${className.trim()}`)
     .join(', ');
@@ -94,7 +95,10 @@ const replaceResourceLinks = (text, resources) => {
 };
 
 const convertChapter = (chapter, params, resources) => {
-  const { text, meta } = replaceElements(chapter.text, params.params.elements);
+  const { text, meta } =
+    params.params && params.params.elements
+      ? replaceElements(chapter.text, params.params.elements)
+      : { text: chapter.text, meta: {} };
 
   // turn to md
   const md = turndownService.turndown(text);
@@ -107,4 +111,4 @@ const convertChapter = (chapter, params, resources) => {
   return `---\n${frontMatter}\n---\n\n${withResources}\n`;
 };
 
-module.exports = convertChapter;
+module.exports = { getTitle, convertChapter };

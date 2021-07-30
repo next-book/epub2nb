@@ -88,15 +88,15 @@ Vue.component('toc-item-edit-title', {
         <span class="material-icons" v-on:click="$emit('preview', item.xhtml)">visibility</span>
         {{item.filename}}
         <span v-on:click="toggleRemove" class="material-icons clickable">close</span>
-
       </span>
+
       <label>
-        Title
-        <textarea type="text" v-model="item.title" cols="30" rows="2"></textarea>
+        <textarea type="text" v-model="item.title" cols="30" rows="2" placeholder="Title"></textarea>
+        <span class="suggested-title" v-on:click="$emit('updatetitle', suggestedTitles[item.filename])" v-if="suggestedTitles[item.filename]">{{suggestedTitles[item.filename]}}</span>
       </label>
       <label>
-        Subtitle
-        <textarea type="text" v-model="item.subtitle" cols="30" rows="2"></textarea>
+        <textarea type="text" v-model="item.subtitle" cols="30" rows="2" placeholder="Subtitle"></textarea>
+        <span class="suggested-title" v-on:click="$emit('updatesubtitle', suggestedSubtitles[item.filename])" v-if="suggestedSubtitles[item.filename]">{{suggestedSubtitles[item.filename]}}</span>
       </label>
 
       <div v-if="item.children && item.children.length">
@@ -113,6 +113,20 @@ Vue.component('toc-item-edit-title', {
     toggleRemove: function () {
       if (this.item.role === 'remove') this.item.role = 'chapter';
       else this.item.role = 'remove';
+    },
+  },
+  computed: {
+    suggestedTitles: function () {
+      return this.epubChapters.reduce((acc, chapter) => {
+        acc[chapter.filename] = chapter.titleSuggest;
+        return acc;
+      }, {});
+    },
+    suggestedSubtitles: function () {
+      return this.epubChapters.reduce((acc, chapter) => {
+        acc[chapter.filename] = chapter.subtitleSuggest;
+        return acc;
+      }, {});
     },
   },
   props: ['item'],
@@ -170,6 +184,8 @@ function loadCss(resources, setter) {
 fetch('./params.json')
   .then(response => response.json())
   .then(data => {
+    Vue.prototype.epubChapters = (data.epub && data.epub.chapters) || [];
+
     var app = new Vue({
       el: '#app',
       data: {
@@ -210,6 +226,10 @@ fetch('./params.json')
         navToData: function () {
           this.tab = 'data';
         },
+        updateItemTitle: function (object, propertyName, value) {
+          console.log(object, propertyName, value);
+          this.$set(this.epub.params.structure, propertyName, value);
+        },
         showPreview: function (filename) {
           this.previewUrl = filename ? `./readium/OEBPS/Text/${filename}` : null;
         },
@@ -217,6 +237,15 @@ fetch('./params.json')
           let textarea = document.getElementById('report');
           textarea.select();
           document.execCommand('copy');
+        },
+        applyAllSuggestions: function () {
+          this.params.structure.forEach((item, index) => {
+            this.$set(this.params.structure, index, {
+              ...item,
+              title: this.suggestedTitles[item.filename],
+              subtitle: this.suggestedSubtitles[item.filename],
+            });
+          });
         },
       },
       computed: {
@@ -261,6 +290,18 @@ fetch('./params.json')
           return this.epub.github
             ? `https://github.com/${this.epub.github.user}/${this.epub.github.repo}/settings/pages`
             : '';
+        },
+        suggestedTitles: function () {
+          return this.epubChapters.reduce((acc, chapter) => {
+            acc[chapter.filename] = chapter.titleSuggest;
+            return acc;
+          }, {});
+        },
+        suggestedSubtitles: function () {
+          return this.epubChapters.reduce((acc, chapter) => {
+            acc[chapter.filename] = chapter.subtitleSuggest;
+            return acc;
+          }, {});
         },
       },
     });
