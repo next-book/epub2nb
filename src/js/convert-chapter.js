@@ -9,12 +9,82 @@ const turndownService = new Turndown({
 
 const replaceElements = (text, elements) => {
   const $ = cheerio.load(text);
+  const meta = {};
 
-  const title = $('.MLP-uroven1-cast').first().text();
-  $('.MLP-uroven1-cast').remove();
+  if (elements.remove.trim()) {
+    removeElements($, elements.remove);
+  }
 
-  return { text: $('body').html(), title };
+  if (elements.title.trim()) {
+    meta.title = getTitle($, elements.title);
+    removeTitle($, elements.title);
+  }
+
+  if (elements.subtitle.trim()) {
+    meta.subtitle = getTitle($, elements.subtitle);
+    removeTitle($, elements.subtitle);
+  }
+
+  ['h2', 'h3', 'h4', 'hr', 'br', 'blockquote', 'figure'].forEach(el => {
+    if (elements[el].trim()) {
+      replaceTagName($, elements[el], el);
+    }
+  });
+
+  ['em', 'strong'].forEach(el => {
+    if (elements[el].trim()) {
+      wrapElContent($, elements[el], el);
+    }
+  });
+
+  if (elements.brBefore.trim()) {
+    insertElBefore($, elements.brBefore, 'br');
+  }
+
+  if (elements.brAfter.trim()) {
+    insertElAfter($, elements.brAfter, 'br');
+  }
+
+  if (elements.hrBefore.trim()) {
+    insertElBefore($, elements.hrBefore, 'hr');
+  }
+
+  if (elements.hrAfter.trim()) {
+    insertElAfter($, elements.hrAfter, 'hr');
+  }
+
+  return { text: $('body').html(), meta };
 };
+
+const replaceTagName = ($, classes, tagName) => {
+  $(getClassSelector(classes))
+    .toArray()
+    .forEach(el => (el.tagName = tagName));
+};
+
+const insertElBefore = ($, classes, tagName) => {
+  $(`<${tagName}>`).insertBefore($(getClassSelector(classes)));
+};
+
+const insertElAfter = ($, classes, tagName) => {
+  $(`<${tagName}>`).insertAfter($(getClassSelector(classes)));
+};
+
+const wrapElContent = ($, classes, tagName) => {
+  $(getClassSelector(classes)).wrapInner(`<${tagName}></${tagName}>`);
+};
+
+const getTitle = ($, classes) => $(getClassSelector(classes)).first().text();
+
+const removeTitle = ($, classes) => $(getClassSelector(classes)).first().remove();
+
+const removeElements = ($, classes) => $(getClassSelector(classes)).remove();
+
+const getClassSelector = classes =>
+  classes
+    .split(/\s+/)
+    .map(className => `.${className.trim()}`)
+    .join(', ');
 
 const replaceResourceLinks = (text, resources) => {
   return resources.reduce((acc, res) => {
@@ -24,14 +94,12 @@ const replaceResourceLinks = (text, resources) => {
 };
 
 const convertChapter = (chapter, params, resources) => {
-  const { text, title } = replaceElements(chapter.text, params.elements);
+  const { text, meta } = replaceElements(chapter.text, params.params.elements);
 
   // turn to md
   const md = turndownService.turndown(text);
 
-  const frontMatter = yaml.dump({
-    title,
-  });
+  const frontMatter = yaml.dump(meta);
 
   // replace resource uris
   const withResources = replaceResourceLinks(md, resources);
