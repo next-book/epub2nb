@@ -3,7 +3,7 @@
 const cmd = require('commander');
 const path = require('path');
 
-const app = require('./../src/js/app.js');
+const app = require('./../src/js');
 
 cmd
   .option('-s, --dir [path]', 'Input dir with an EPUB to convert')

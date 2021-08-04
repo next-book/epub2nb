@@ -43,7 +43,7 @@ const convertBook = (dir, github) => {
 
     saveChapters(chapterTexts, params.params ? params.params.structure : [], nbDir, 0);
 
-    const paramsData = compileParams(params, manifest, chapters, resources, github);
+    const paramsData = compileParams(params, manifest, chapters, github);
     fs.writeFileSync(getParamsPath(dir), paramsData);
 
     copyEditorFiles(dir);
@@ -158,6 +158,8 @@ function getGhData(github) {
 function compileParams(params, manifest, chapters, github) {
   const allClasses = compileClasses(chapters);
   const elements = (params && params.params && params.params.elements) || null;
+
+  console.log(github, getGhData(github));
 
   return JSON.stringify(
     {
