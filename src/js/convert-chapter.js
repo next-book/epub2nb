@@ -11,49 +11,53 @@ const replaceElements = (text, elements) => {
   const $ = cheerio.load(text);
   const meta = {};
 
-  if (elements.remove.trim()) {
+  if (isNonEmptyString(elements, 'remove')) {
     removeElements($, elements.remove);
   }
 
-  if (elements.title.trim()) {
+  if (isNonEmptyString(elements, 'title')) {
     meta.title = getTitle($, elements.title);
     removeTitle($, elements.title);
   }
 
-  if (elements.subtitle.trim()) {
+  if (isNonEmptyString(elements, 'subtitle')) {
     meta.subtitle = getTitle($, elements.subtitle);
     removeTitle($, elements.subtitle);
   }
 
   ['h2', 'h3', 'h4', 'hr', 'br', 'blockquote', 'figure'].forEach(el => {
-    if (elements[el].trim()) {
+    if (isNonEmptyString(elements, el)) {
       replaceTagName($, elements[el], el);
     }
   });
 
   ['em', 'strong'].forEach(el => {
-    if (elements[el].trim()) {
+    if (isNonEmptyString(elements, el)) {
       wrapElContent($, elements[el], el);
     }
   });
 
-  if (elements.brBefore.trim()) {
+  if (isNonEmptyString(elements, 'brBefore')) {
     insertElBefore($, elements.brBefore, 'br');
   }
 
-  if (elements.brAfter.trim()) {
+  if (isNonEmptyString(elements, 'brAfter')) {
     insertElAfter($, elements.brAfter, 'br');
   }
 
-  if (elements.hrBefore.trim()) {
+  if (isNonEmptyString(elements, 'hrBefore')) {
     insertElBefore($, elements.hrBefore, 'hr');
   }
 
-  if (elements.hrAfter.trim()) {
+  if (isNonEmptyString(elements, 'hrAfter')) {
     insertElAfter($, elements.hrAfter, 'hr');
   }
 
   return { text: $('body').html(), meta };
+};
+
+const isNonEmptyString = (elements, element) => {
+  return elements && typeof elements[element] === 'string' && elements[element].trim() != '';
 };
 
 const replaceTagName = ($, classes, tagName) => {
