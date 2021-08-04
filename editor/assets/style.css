@@ -259,6 +259,26 @@ nav ul li.active {
   border-radius: 3px;
 }
 
+.view-chapter-tabs {
+  line-height: 2rem;
+  height: 2rem;
+  position: absolute;
+  top: 0;
+  left: 1rem;
+}
+
+.view-chapter-tabs .tab {
+  cursor: pointer;
+  margin-right: 1rem;
+  opacity: 0.6;
+}
+
+.view-chapter-tabs .tab.active {
+  font-weight: bold;
+  opacity: 1;
+  cursor: pointer;
+}
+
 .view-chapter-close {
   line-height: 2rem;
   height: 2rem;
@@ -279,6 +299,20 @@ nav ul li.active {
   top: 2rem;
   bottom: 0;
   left: 1rem;
+}
+
+.view-chapter pre {
+  overflow: scroll;
+  border: solid gray;
+  border-width: 1px 0 0;
+
+  position: absolute;
+  width: calc(100% - 2rem);
+  height: calc(100% - 3rem);
+  top: 2rem;
+  bottom: 0;
+  left: 1rem;
+  margin: 0;
 }
 
 .unused-classes {

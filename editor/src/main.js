@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueNestable from 'vue-nestable';
 import { toCSS, toJSON } from 'cssjson';
+import { html_beautify } from 'js-beautify';
 
 import AutoComplete from './autocomplete';
 
@@ -50,6 +51,22 @@ Vue.component('css-preview', {
       return { selector, attributes };
     },
   },
+});
+
+Vue.component('html-preview', {
+  data: function () {
+    return { code: '' };
+  },
+  template: `<pre class="chapter-code">{{code}}</pre>`,
+  mounted: function () {
+    fetch(this.src).then(async response => {
+      const code = await response.text();
+      this.code = html_beautify(code);
+    });
+
+    console.log('xxx');
+  },
+  props: ['src'],
 });
 
 Vue.component('toc-item', {
@@ -190,6 +207,7 @@ fetch('./params.json')
       el: '#app',
       data: {
         previewUrl: null,
+        previewTab: 'preview',
         tab: 'metadata',
         elements,
         params:
@@ -232,6 +250,9 @@ fetch('./params.json')
         },
         showPreview: function (filename) {
           this.previewUrl = filename ? `./readium/OEBPS/Text/${filename}` : null;
+        },
+        setPreviewTab: function (tab) {
+          this.previewTab = tab;
         },
         copyReport: function () {
           let textarea = document.getElementById('report');

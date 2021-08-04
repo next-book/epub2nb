@@ -194,8 +194,13 @@
       </div>
 
       <div v-if="previewUrl != null" class="view-chapter">
+        <div class="view-chapter-tabs">
+          <span v-bind:class="[previewTab == 'preview' ? 'active' : '', 'tab']" v-on:click="setPreviewTab('preview')">preview</span>
+          <span v-bind:class="[previewTab == 'code' ? 'active' : '', 'tab']" v-on:click="setPreviewTab('code')">HTML</span>
+        </div>
         <div class="view-chapter-close" v-on:click="showPreview(null)">close</div>
-        <iframe :src="previewUrl"></iframe>
+        <iframe v-if="previewTab == 'preview'" :src="previewUrl"></iframe>
+        <html-preview v-else :src="previewUrl"/>
       </div>
     </div>
   </main>
