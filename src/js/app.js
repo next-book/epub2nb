@@ -60,10 +60,34 @@ function createBookFile(params, chapterTexts) {
     languageCode: params && params.metadata ? params.metadata.languageCode : 'en',
     meta: params && params.metadata,
     chapters: getChapterTitles(params ? params.structure : [], 0),
+    tocBase: params && params.structure ? assembleTocBase(params.structure) : null,
     static: ['style', 'scripts', 'title', 'fonts', 'resources', 'favicon.png'],
   });
 
-  return `---\n${frontMatter}\n---\n`;
+  return `---\n${frontMatter.trim()}\n---\n`;
+}
+
+function assembleTocBase(structure) {
+  return structure
+    .filter(
+      chapter =>
+        chapter.inToc && chapter.title && (chapter.role === 'chapter' || chapter.role === 'break')
+    )
+    .map(assembleTocItem);
+}
+
+function assembleTocItem(chapter) {
+  const item = {
+    link: chapter.filename.replace(/.md$/, '.html'),
+    title: chapter.title,
+  };
+
+  if (chapter.children && chapter.children.length > 0) {
+    item.children = assembleTocBase(item.children);
+    item.numberedChildren = item.numberedChildren;
+  }
+
+  return item;
 }
 
 function getChapterTitles(structure, level) {

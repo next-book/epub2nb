@@ -71,7 +71,7 @@ Vue.component('html-preview', {
 
 Vue.component('toc-item', {
   template: `
-    <li v-if="item.role !== 'remove' && item.role !== 'colophon' && item.inToc && !(possibleCover && item.role === 'break')">
+    <li v-if="item.title && item.role !== 'remove' && item.role !== 'colophon' && item.inToc && !(possibleCover && item.role === 'break')">
       <span class="filename">{{item.filename}}</span>
       <span class="title">{{item.title}}</span>
       <div v-if="item.children && item.children.length > 1">

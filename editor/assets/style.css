@@ -349,6 +349,22 @@ nav ul li.active {
   cursor: pointer;
 }
 
+.box {
+  display: block;
+  border: 1px solid gray;
+  border-radius: 3px;
+  margin-bottom: 3px;
+  padding: 0.5rem;
+}
+
+.box :first-child {
+  margin-top: 0;
+}
+
+.box :last-child {
+  margin-bottom: 0;
+}
+
 .suggested-title {
   display: block;
   border: 1px solid gray;

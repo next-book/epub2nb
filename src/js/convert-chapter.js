@@ -108,7 +108,7 @@ const convertChapter = (chapter, params, resources) => {
   // replace resource uris
   const withResources = replaceResourceLinks(md, resources);
 
-  return `---\n${frontMatter}\n---\n\n${withResources}\n`;
+  return `---\n${frontMatter.trim()}\n---\n\n${withResources}\n`;
 };
 
 module.exports = { getTitle, convertChapter };

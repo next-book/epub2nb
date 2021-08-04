@@ -113,7 +113,6 @@
 
         <div class="toc-preview">
           <h2>TOC preview</h2>
-          <p>Note: Preview does not include sub-headings inside chapters.</p>
           <ul>
             <toc-item v-for="(item, index) in params.structure" :item="item" :key="item.filename" :possible-cover="index === 0"></toc-item>
           </ul>
@@ -131,6 +130,17 @@
               <span class="title">Colophon (will be merged)</span>
             </li>
           </ul>
+
+          <div class="box">
+            <p>Not included in TOC:</p>
+            <ul>
+              <li>removed documents</li>
+              <li>documents without title</li>
+              <li>single sub-documents (represented by their parent documents)</li>
+              <li>colophon and book cover (appended in the bottom)</li>
+            </ul>
+            <p><b>Note:</b> Preview does not include sub-headings inside chapters.</p>
+          </div>
         </div>
       </div>
 
