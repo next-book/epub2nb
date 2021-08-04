@@ -63,8 +63,6 @@ Vue.component('html-preview', {
       const code = await response.text();
       this.code = html_beautify(code);
     });
-
-    console.log('xxx');
   },
   props: ['src'],
 });
@@ -270,6 +268,9 @@ fetch('./params.json')
         },
       },
       computed: {
+        generatedAgo: function () {
+          return Math.floor((Date.now() - this.epub.generatedAt) / (60 * 1000));
+        },
         unmatchedClassNames: function () {
           const matched = [];
 

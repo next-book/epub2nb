@@ -159,8 +159,6 @@ function compileParams(params, manifest, chapters, github) {
   const allClasses = compileClasses(chapters);
   const elements = (params && params.params && params.params.elements) || null;
 
-  console.log(github, getGhData(github));
-
   return JSON.stringify(
     {
       params: params.params,
@@ -183,6 +181,7 @@ function compileParams(params, manifest, chapters, github) {
         resources: manifest.resources,
         classes: allClasses,
         github: getGhData(github),
+        generatedAt: Date.now(),
       },
     },
     null,

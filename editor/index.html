@@ -32,6 +32,7 @@
 
   <main>
     <div id="app">
+      <p style="float: right" v-if="epub.generatedAt">generated {{ generatedAgo }} m ago</p>
       <h1>Conversion: {{ epub.metadata.title }}</h1>
 
       <nav>
