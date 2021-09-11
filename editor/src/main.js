@@ -116,10 +116,10 @@ Vue.component('toc-item-edit-title', {
 
       <div v-if="item.children && item.children.length">
         <ol v-if="item.numberedChildren">
-          <toc-item-edit-title v-for="item in item.children" :item="item" :key="item.filename"></toc-item-edit-title>
+          <toc-item-edit-title v-for="item in item.children" :item="item" :key="item.filename" @preview="filename => $emit('preview', filename)"></toc-item-edit-title>
         </ol>
         <ul v-else>
-          <toc-item-edit-title v-for="item in item.children" :item="item" :key="item.filename"></toc-item-edit-title>
+          <toc-item-edit-title v-for="item in item.children" :item="item" :key="item.filename" @preview="filename => $emit('preview', filename)"></toc-item-edit-title>
         </ul>
       </div>
     </li>
