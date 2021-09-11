@@ -7,82 +7,104 @@ const turndownService = new Turndown({
   headingStyle: 'atx',
 });
 
-const replaceElements = (text, elements) => {
+const replaceElements = (text, elements, allClasses) => {
+  const classes = createSelectors(elements, allClasses);
+
   const $ = cheerio.load(text);
   const meta = {};
 
-  if (isNonEmptyString(elements, 'remove')) {
-    removeElements($, elements.remove);
+  if (classes.remove) {
+    removeElements($, classes.remove);
   }
 
-  if (isNonEmptyString(elements, 'title')) {
-    meta.title = getTitle($, elements.title);
-    removeTitle($, elements.title);
+  if (classes.title) {
+    meta.title = getTitle($, classes.title);
+    removeTitle($, classes.title);
   }
 
-  if (isNonEmptyString(elements, 'subtitle')) {
-    meta.subtitle = getTitle($, elements.subtitle);
-    removeTitle($, elements.subtitle);
+  if (classes.subtitle) {
+    meta.subtitle = getTitle($, classes.subtitle);
+    removeTitle($, classes.subtitle);
   }
 
   ['h2', 'h3', 'h4', 'hr', 'br', 'blockquote', 'figure'].forEach(el => {
-    if (isNonEmptyString(elements, el)) {
-      replaceTagName($, elements[el], el);
+    if (classes[el]) {
+      replaceTagName($, classes[el], el);
     }
   });
 
   ['em', 'strong'].forEach(el => {
-    if (isNonEmptyString(elements, el)) {
-      wrapElContent($, elements[el], el);
+    if (classes[el]) {
+      wrapElContent($, classes[el], el);
     }
   });
 
-  if (isNonEmptyString(elements, 'brBefore')) {
-    insertElBefore($, elements.brBefore, 'br');
+  if (classes.brBefore) {
+    insertElBefore($, classes.brBefore, 'br');
   }
 
-  if (isNonEmptyString(elements, 'brAfter')) {
-    insertElAfter($, elements.brAfter, 'br');
+  if (classes.brAfter) {
+    insertElAfter($, classes.brAfter, 'br');
   }
 
-  if (isNonEmptyString(elements, 'hrBefore')) {
-    insertElBefore($, elements.hrBefore, 'hr');
+  if (classes.hrBefore) {
+    insertElBefore($, classes.hrBefore, 'hr');
   }
 
-  if (isNonEmptyString(elements, 'hrAfter')) {
-    insertElAfter($, elements.hrAfter, 'hr');
+  if (classes.hrAfter) {
+    insertElAfter($, classes.hrAfter, 'hr');
   }
 
   return { text: $('body').html(), meta };
 };
 
-const isNonEmptyString = (elements, element) => {
-  return elements && typeof elements[element] === 'string' && elements[element].trim() != '';
+const createSelectors = (defs, allClasses) => {
+  const selectors = {};
+
+  Object.keys(defs).map(key => {
+    if (!(typeof defs[key] === 'string' && defs[key].trim() != '')) {
+      selectors[key] = null;
+      return;
+    }
+
+    selectors[key] = defs[key]
+      .trim()
+      .split(/\s+/)
+      .map(token => token.trim())
+      .map(token => allClasses.filter(c => c.match(new RegExp(`^${token}$`))))
+      .reduce((acc, classList) => {
+        return acc.concat(classList);
+      }, [])
+      .map(c => `.${c}`)
+      .join(', ');
+  });
+
+  return selectors;
 };
 
 const replaceTagName = ($, classes, tagName) => {
-  $(getClassSelector(classes))
+  $(classes)
     .toArray()
     .forEach(el => (el.tagName = tagName));
 };
 
 const insertElBefore = ($, classes, tagName) => {
-  $(`<${tagName}>`).insertBefore($(getClassSelector(classes)));
+  $(`<${tagName}>`).insertBefore($(classes));
 };
 
 const insertElAfter = ($, classes, tagName) => {
-  $(`<${tagName}>`).insertAfter($(getClassSelector(classes)));
+  $(`<${tagName}>`).insertAfter($(classes));
 };
 
 const wrapElContent = ($, classes, tagName) => {
-  $(getClassSelector(classes)).wrapInner(`<${tagName}></${tagName}>`);
+  $(classes).wrapInner(`<${tagName}></${tagName}>`);
 };
 
-const getTitle = ($, classes) => $(getClassSelector(classes)).first().text();
+const getTitle = ($, classes) => $(classes).first().text();
 
-const removeTitle = ($, classes) => $(getClassSelector(classes)).first().remove();
+const removeTitle = ($, classes) => $(classes).first().remove();
 
-const removeElements = ($, classes) => $(getClassSelector(classes)).remove();
+const removeElements = ($, classes) => $(classes).remove();
 
 const getClassSelector = classes =>
   classes
@@ -101,7 +123,7 @@ const replaceResourceLinks = (text, resources) => {
 const convertChapter = (chapter, params, resources) => {
   const { text, meta } =
     params.params && params.params.elements
-      ? replaceElements(chapter.text, params.params.elements)
+      ? replaceElements(chapter.text, params.params.elements, params.epub.classes)
       : { text: chapter.text, meta: {} };
 
   // turn to md
