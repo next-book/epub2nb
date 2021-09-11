@@ -82,7 +82,7 @@ function assembleTocItem(chapter) {
     title: chapter.title,
   };
 
-  if (chapter.children && chapter.children.length > 0) {
+  if (item.children && item.children.length > 0) {
     item.children = assembleTocBase(item.children);
     item.numberedChildren = item.numberedChildren;
   }
