@@ -209,7 +209,7 @@ function prepDirs(dir) {
 const loadChapters = (readiumDir, manifest) => {
   return manifest.readingOrder.map(fileinfo => {
     const src = path.join(readiumDir, fileinfo.href);
-    const out = path.parse(fileinfo.href).name + '.md';
+    const out = path.parse(fileinfo.href).name.replace(/\s+/g, '') + '.md';
     const text = fs.readFileSync(src, 'utf8');
     const dom = cheerio.load(text);
     const results = analyze(dom);
