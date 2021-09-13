@@ -117,15 +117,17 @@ function saveChapters(chapterTexts, structure, nbDir, level) {
       colophon.push(chapterTexts[chapter.filename]);
     } else if (chapter.role === 'cover' && index === 0) {
       fs.writeFileSync(path.join(nbDir, '_index.md'), chapterTexts[chapter.filename]);
+      saveSubchapters(chapterTexts, chapter, nbDir, level);
     } else {
       fs.writeFileSync(path.join(nbDir, chapter.filename), chapterTexts[chapter.filename]);
+      saveSubchapters(chapterTexts, chapter, nbDir, level);
     }
-
-    if (structure.children && structure.children.length > 0)
-      saveChapters(chapterTexts, structure.children, nbDir, level + 1);
   });
 
   fs.writeFileSync(path.join(nbDir, 'colophon.md'), colophon.join('\n\n'));
+function saveSubchapters(chapterTexts, structure, nbDir, level) {
+  if (structure.children && structure.children.length > 0)
+    saveChapters(chapterTexts, structure.children, nbDir, level + 1);
 }
 
 function copyEditorFiles(dir) {
