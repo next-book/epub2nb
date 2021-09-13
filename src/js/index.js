@@ -4,6 +4,7 @@ const path = require('path');
 const fsExtra = require('fs-extra');
 const cheerio = require('cheerio');
 const yaml = require('js-yaml');
+const fm = require('front-matter');
 
 const analyze = require('./analyze');
 const { convertChapter, getTitle } = require('./convert-chapter');
@@ -124,7 +125,19 @@ function saveChapters(chapterTexts, structure, nbDir, level) {
     }
   });
 
-  fs.writeFileSync(path.join(nbDir, 'colophon.md'), colophon.join('\n\n'));
+  fs.writeFileSync(path.join(nbDir, 'colophon.md'), prepColophon(colophon));
+}
+
+function prepColophon(colophon) {
+  const text = colophon
+    .map(chapter => fm(chapter))
+    .map(data =>
+      data.attributes.title ? `## ${data.attributes.title}\n\n${data.body}` : `***\n\n${data.body}`
+    )
+    .join('\n\n');
+  return `---\ntitle: Tiráž\n---\n\n${text}`;
+}
+
 function saveSubchapters(chapterTexts, structure, nbDir, level) {
   if (structure.children && structure.children.length > 0)
     saveChapters(chapterTexts, structure.children, nbDir, level + 1);
