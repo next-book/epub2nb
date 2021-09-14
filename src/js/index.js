@@ -175,7 +175,7 @@ function getGhData(github) {
 function compileParams(params, manifest, chapters, github) {
   const allClasses = compileClasses(chapters);
   const elements = (params && params.params && params.params.elements) || null;
-  const selectors = createSelectors(elements, params.epub.classes);
+  const selectors = elements ? createSelectors(elements, allClasses) : [];
 
   return JSON.stringify(
     {
@@ -189,10 +189,9 @@ function compileParams(params, manifest, chapters, github) {
           modified: manifest.metadata.modified,
         },
         chapters: chapters.map(chapter => ({
-          titleSuggest:
-            elements && elements.title.trim() ? getTitle(chapter.dom, selectors.title) : '',
+          titleSuggest: selectors.title !== null ? getTitle(chapter.dom, selectors.title) : '',
           subtitleSuggest:
-            elements && elements.subtitle.trim() ? getTitle(chapter.dom, selectors.subtitle) : '',
+            selectors.subtitle !== null ? getTitle(chapter.dom, selectors.subtitle) : '',
           filename: chapter.out,
           xhtml: path.parse(chapter.src).name + path.parse(chapter.src).ext,
         })),
