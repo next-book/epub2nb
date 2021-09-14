@@ -60,7 +60,7 @@ function createBookFile(params, chapterTexts) {
     slug: 'book',
     languageCode: params && params.metadata ? params.metadata.languageCode : 'en',
     meta: params && params.metadata,
-    chapters: getChapterTitles(params ? params.structure : [], 0),
+    chapters: getReadingOrder(params ? params.structure : [], 0),
     tocBase: params && params.structure ? assembleTocBase(params.structure) : null,
     static: ['style', 'scripts', 'title', 'fonts', 'resources', 'favicon.png'],
   });
@@ -83,15 +83,15 @@ function assembleTocItem(chapter) {
     title: chapter.title,
   };
 
-  if (item.children && item.children.length > 0) {
-    item.children = assembleTocBase(item.children);
-    item.numberedChildren = item.numberedChildren;
+  if (chapter.children && chapter.children.length > 0) {
+    item.children = assembleTocBase(chapter.children);
+    item.numberedChildren = chapter.numberedChildren;
   }
 
   return item;
 }
 
-function getChapterTitles(structure, level) {
+function getReadingOrder(structure) {
   return structure.reduce((acc, chapter, index) => {
     if (
       chapter.role === 'remove' ||
@@ -99,10 +99,12 @@ function getChapterTitles(structure, level) {
       (chapter.role === 'cover' && index === 0)
     )
       return acc;
-    else acc.push(chapter.filename.replace(/.md$/, '.html'));
+    else {
+      acc.push(chapter.filename.replace(/.md$/, '.html'));
 
-    if (structure.children && structure.children.length > 0)
-      acc.push(...getChapterTitles(structure.children, level + 1));
+      if (chapter.children && chapter.children.length > 0)
+        acc.push(...getReadingOrder(chapter.children));
+    }
 
     return acc;
   }, []);
