@@ -1,6 +1,6 @@
 {
   "name": "@next-book/epub2nb",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "Convert EPUB to next-book content files.",
   "main": "./src/js/app.js",
   "bin": {
@@ -28,8 +28,8 @@
     "fs-extra": "^10.0.0",
     "js-yaml": "^4.1.0",
     "json-diff": "^0.5.4",
-    "r2-lcp-js": "^1.0.30",
-    "r2-shared-js": "^1.0.51",
+    "r2-lcp-js": "^1.0.32",
+    "r2-shared-js": "^1.0.52",
     "turndown": "^7.0.0"
   }
 }
