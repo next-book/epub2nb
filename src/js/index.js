@@ -7,7 +7,7 @@ const yaml = require('js-yaml');
 const fm = require('front-matter');
 
 const analyze = require('./analyze');
-const { convertChapter, getTitle } = require('./convert-chapter');
+const { convertChapter, getTitle, createSelectors } = require('./convert-chapter');
 const epub2readium = require('./epub2readium');
 
 const PKG_DIR = path.join(__dirname, '../../');
@@ -175,6 +175,7 @@ function getGhData(github) {
 function compileParams(params, manifest, chapters, github) {
   const allClasses = compileClasses(chapters);
   const elements = (params && params.params && params.params.elements) || null;
+  const selectors = createSelectors(elements, params.epub.classes);
 
   return JSON.stringify(
     {
@@ -189,9 +190,9 @@ function compileParams(params, manifest, chapters, github) {
         },
         chapters: chapters.map(chapter => ({
           titleSuggest:
-            elements && elements.title.trim() ? getTitle(chapter.dom, elements.title) : '',
+            elements && elements.title.trim() ? getTitle(chapter.dom, selectors.title) : '',
           subtitleSuggest:
-            elements && elements.subtitle.trim() ? getTitle(chapter.dom, elements.subtitle) : '',
+            elements && elements.subtitle.trim() ? getTitle(chapter.dom, selectors.subtitle) : '',
           filename: chapter.out,
           xhtml: path.parse(chapter.src).name + path.parse(chapter.src).ext,
         })),

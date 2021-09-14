@@ -137,4 +137,4 @@ const convertChapter = (chapter, params, resources) => {
   return `---\n${frontMatter.trim()}\n---\n\n${withResources}\n`;
 };
 
-module.exports = { getTitle, convertChapter };
+module.exports = { getTitle, convertChapter, createSelectors };
