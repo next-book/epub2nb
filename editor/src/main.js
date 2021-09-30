@@ -69,7 +69,7 @@ Vue.component('html-preview', {
 
 Vue.component('toc-item', {
   template: `
-    <li v-if="item.title && item.role !== 'remove' && item.role !== 'colophon' && item.inToc && !(possibleCover && item.role === 'break')">
+    <li v-if="!item.isSection && item.title && item.role !== 'remove' && item.role !== 'colophon' && item.inToc && !(possibleCover && item.role === 'break')">
       <span class="filename">{{item.filename}}</span>
       <span class="title">{{item.title}}</span>
       <div v-if="item.children && item.children.length > 1">
@@ -81,6 +81,14 @@ Vue.component('toc-item', {
         </ul>
       </div>
     </li>
+    <div v-else-if="item.isSection && item.children && item.children.length > 1">
+      <ol v-if="item.numberedChildren">
+        <toc-item v-for="item in item.children" :item="item" :key="item.filename"></toc-item>
+      </ol>
+      <ul v-else>
+        <toc-item v-for="item in item.children" :item="item" :key="item.filename"></toc-item>
+      </ul>
+    </div>
   `,
   props: ['item', 'possibleCover'],
 });
@@ -98,7 +106,11 @@ Vue.component('icon', {
 Vue.component('toc-item-edit-title', {
   template: `
     <li v-if="item.role !== 'remove'">
-      <span class="filename">
+      <span v-if="item.isSection" class="filename">
+        Section
+      </span>
+
+      <span v-if="!item.isSection" class="filename">
         <icon :role="item.role"></icon>
         <span class="material-icons" v-on:click="$emit('preview', item.xhtml)">visibility</span>
         {{item.filename}}
@@ -175,15 +187,19 @@ function prepElObj(elements) {
 }
 
 function prepStructure(chapters) {
-  return chapters.map((chapter, index) => ({
-    filename: chapter.filename,
-    xhtml: chapter.xhtml,
-    title: chapter.title,
-    id: index,
-    role: 'chapter',
-    numberedChildren: false,
-    inToc: true,
-  }));
+  return {
+    isSection: true,
+    id: 'section-1',
+    children: chapters.map((chapter, index) => ({
+      filename: chapter.filename,
+      xhtml: chapter.xhtml,
+      title: chapter.title,
+      id: index,
+      role: 'chapter',
+      numberedChildren: false,
+      inToc: true,
+    })),
+  };
 }
 
 function loadCss(resources, setter) {
@@ -265,7 +281,26 @@ fetch('./params.json')
               subtitle: this.suggestedSubtitles[item.filename],
             });
           });
+        addSection: function () {
+          const number =
+            Math.max(
+              ...this.params.structure
+                .filter(item => item.isSection)
+                .map(item => parseInt(item.id.match(/\d+$/), 10))
+            ) + 1;
+
+          this.params.structure = [
+            ...this.params.structure,
+            {
+              isSection: true,
+              inToc: true,
+              id: `section-${number}`,
+              children: [],
+              numberedChildren: true,
+            },
+          ];
         },
+        removeSection: function () {},
       },
       computed: {
         generatedAgo: function () {
