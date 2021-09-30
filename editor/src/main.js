@@ -117,21 +117,27 @@ Vue.component('toc-item-edit-title', {
         <span v-on:click="toggleRemove" class="material-icons clickable">close</span>
       </span>
 
-      <label>
+
+      <label v-if="!item.isSection" >
         <textarea type="text" v-model="item.title" cols="30" rows="2" placeholder="Title"></textarea>
-        <span class="suggested-title" v-on:click="$emit('updatetitle', suggestedTitles[item.filename])" v-if="suggestedTitles[item.filename]">{{suggestedTitles[item.filename]}}</span>
+        <span class="suggested-title" v-on:click="() => updateTitle()" v-if="suggestedTitles[item.filename]">{{suggestedTitles[item.filename]}}</span>
       </label>
-      <label>
+      <label v-if="!item.isSection">
+        <input type="checkbox" id="checkbox" v-model="item.hiddenTitle">
+        TOC-only
+      </label>
+
+      <label v-if="!item.isSection" >
         <textarea type="text" v-model="item.subtitle" cols="30" rows="2" placeholder="Subtitle"></textarea>
-        <span class="suggested-title" v-on:click="$emit('updatesubtitle', suggestedSubtitles[item.filename])" v-if="suggestedSubtitles[item.filename]">{{suggestedSubtitles[item.filename]}}</span>
+        <span class="suggested-title" v-on:click="() => updateSubtitle()" v-if="suggestedSubtitles[item.filename]">{{suggestedSubtitles[item.filename]}}</span>
       </label>
 
       <div v-if="item.children && item.children.length">
         <ol v-if="item.numberedChildren">
-          <toc-item-edit-title v-for="item in item.children" :item="item" :key="item.filename" @preview="filename => $emit('preview', filename)"></toc-item-edit-title>
+          <toc-item-edit-title v-for="item in item.children" :item="item" @updatetitle="filename => updateTitle(filename)" @updatesubtitle="updateSubtitle" :key="item.filename" @preview="filename => $emit('preview', filename)"></toc-item-edit-title>
         </ol>
         <ul v-else>
-          <toc-item-edit-title v-for="item in item.children" :item="item" :key="item.filename" @preview="filename => $emit('preview', filename)"></toc-item-edit-title>
+          <toc-item-edit-title v-for="item in item.children" :item="item" @updatetitle="filename => updateTitle(filename)" @updatesubtitle="updateSubtitle" :key="item.filename" @preview="filename => $emit('preview', filename)"></toc-item-edit-title>
         </ul>
       </div>
     </li>
@@ -140,6 +146,12 @@ Vue.component('toc-item-edit-title', {
     toggleRemove: function () {
       if (this.item.role === 'remove') this.item.role = 'chapter';
       else this.item.role = 'remove';
+    },
+    updateTitle: function (filename) {
+      this.$emit('updatetitle', filename || this.item.filename);
+    },
+    updateSubtitle: function (filename) {
+      this.$emit('updatesubtitle', filename || this.item.filename);
     },
   },
   computed: {
@@ -274,13 +286,36 @@ fetch('./params.json')
           document.execCommand('copy');
         },
         applyAllSuggestions: function () {
-          this.params.structure.forEach((item, index) => {
-            this.$set(this.params.structure, index, {
-              ...item,
-              title: this.suggestedTitles[item.filename],
-              subtitle: this.suggestedSubtitles[item.filename],
-            });
-          });
+          this.params.structure = [...this.applySuggestion(this.params.structure, true, true)];
+        },
+        applyTitleSuggestion: function (filename) {
+          this.params.structure = [
+            ...this.applySuggestion(this.params.structure, 'title', filename),
+          ];
+        },
+        applySubtitleSuggestion: function (filename) {
+          this.params.structure = [
+            ...this.applySuggestion(this.params.structure, 'subtitle', filename),
+          ];
+        },
+        applySuggestion: function (toc, field, filename) {
+          return toc.map(item => ({
+            ...item,
+            title:
+              this.suggestedTitles[item.filename] &&
+              (field === 'title' || field === true) &&
+              (filename === true || item.filename === filename)
+                ? this.suggestedTitles[item.filename]
+                : item.title,
+            subtitle:
+              this.suggestedSubtitles[item.filename] &&
+              (field === 'subtitle' || field === true) &&
+              (filename === true || item.filename === filename)
+                ? this.suggestedSubtitles[item.filename]
+                : item.subtitle,
+            children: this.applySuggestion(item.children, field, filename),
+          }));
+        },
         addSection: function () {
           const number =
             Math.max(

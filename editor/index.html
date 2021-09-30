@@ -45,78 +45,83 @@
       </nav>
 
       <div v-if="tab == 'structure'" class="structure">
-        <vue-nestable v-model="params.structure">
-          <vue-nestable-handle
-            slot-scope="{ item }"
-            :item="item">
+        <div>
+          <vue-nestable v-model="params.structure">
+            <vue-nestable-handle
+              slot-scope="{ item }"
+              :item="item">
 
-            <div v-bind:class="[ (item.role == 'remove') ? 'removed' : '', !item.inToc ? 'not-in-toc' : '' ]">
-              <h2>
-                <icon :role="item.role"></icon>
+              <div v-bind:class="[ (item.role == 'remove') ? 'removed' : '', !item.inToc ? 'not-in-toc' : '' ]">
+                <h2 v-if="item.isSection">Section</h2>
+                <h2 v-else>
+                  <icon :role="item.role"></icon>
 
-                <span class="material-icons" v-on:click="() => showPreview(item.xhtml)">visibility</span>
+                  <span class="material-icons" v-on:click="() => showPreview(item.xhtml)">visibility</span>
 
-                {{ item.filename }}: {{ item.title ? item.title : "—" }}
-              </h2>
+                  {{ item.filename }}: {{ item.title ? item.title : "—" }}
+                </h2>
 
-              <div class="controls">
-                <div class="role">
-                  <label title="chapter">
-                    <input type="radio" value="chapter" v-model="item.role">
+                <div class="controls">
+                  <div v-if="!item.isSection" class="role">
+                    <label title="chapter">
+                      <input type="radio" value="chapter" v-model="item.role">
+                      <span class="btn">
+                        <span class="material-icons">subject</span> <span class="desc">chapter</span>
+                      </span>
+                    </label>
+
+                    <label v-if="!item.isSection" title="break">
+                      <input type="radio" value="break" v-model="item.role">
+                      <span class="btn">
+                        <span class="material-icons">photo</span> <span class="desc">break</span>
+                      </span>
+                    </label>
+
+                    <label v-if="!item.isSection" title="colophon">
+                      <input type="radio" value="colophon" v-model="item.role">
+                      <span class="btn">
+                        <span class="material-icons">copyright</span> <span class="desc">colophon</span>
+                      </span>
+                    </label>
+
+                    <label v-if="!item.isSection" title="remove">
+                      <input type="radio" value="remove" v-model="item.role">
+                      <span class="btn">
+                        <span class="material-icons">close</span> <span class="desc">remove</span>
+                      </span>
+                    </label>
+                  </div>
+
+                  <label v-if="!item.isSection" class="show-in-toc">
                     <span class="btn">
-                      <span class="material-icons">subject</span> <span class="desc">chapter</span>
+                      <span class="material-icons">list</span> <span>in TOC</span>
                     </span>
+
+                    <input type="checkbox" v-model="item.inToc">
+
+                    <span v-if="item.inToc" class="material-icons toggle-on">toggle_on</span>
+                    <span v-else class="material-icons toggle-off">toggle_off</span>
                   </label>
 
-                  <label title="break">
-                    <input type="radio" value="break" v-model="item.role">
-                    <span class="btn">
-                      <span class="material-icons">photo</span> <span class="desc">break</span>
-                    </span>
-                  </label>
+                  <label v-if="item.children && item.children.length" class="numbered-children">
+                    <input type="checkbox" v-model="item.numberedChildren">
 
-                  <label title="colophon">
-                    <input type="radio" value="colophon" v-model="item.role">
-                    <span class="btn">
-                      <span class="material-icons">copyright</span> <span class="desc">colophon</span>
-                    </span>
-                  </label>
-
-                  <label title="remove">
-                    <input type="radio" value="remove" v-model="item.role">
-                    <span class="btn">
-                      <span class="material-icons">close</span> <span class="desc">remove</span>
-                    </span>
+                    <span v-if="item.numberedChildren" class="material-icons">format_list_numbered</span>
+                    <span v-else class="material-icons">reorder</span>
                   </label>
                 </div>
-
-                <label class="show-in-toc">
-                  <span class="btn">
-                    <span class="material-icons">list</span> <span>in TOC</span>
-                  </span>
-
-                  <input type="checkbox" v-model="item.inToc">
-
-                  <span v-if="item.inToc" class="material-icons toggle-on">toggle_on</span>
-                  <span v-else class="material-icons toggle-off">toggle_off</span>
-                </label>
-
-                <label v-if="item.children && item.children.length" class="numbered-children">
-                  <input type="checkbox" v-model="item.numberedChildren">
-
-                  <span v-if="item.numberedChildren" class="material-icons">format_list_numbered</span>
-                  <span v-else class="material-icons">reorder</span>
-                </label>
               </div>
-            </div>
-          </vue-nestable-handle>
-        </vue-nestable>
+            </vue-nestable-handle>
+          </vue-nestable>
+
+          <div v-on:click="addSection">Add section</div>
+        </div>
 
         <div class="toc-preview">
           <h2>TOC preview</h2>
-          <ul>
-            <toc-item v-for="(item, index) in params.structure" :item="item" :key="item.filename" :possible-cover="index === 0"></toc-item>
-          </ul>
+
+          <toc-item v-for="(item, index) in params.structure" :item="item" :key="item.filename" :possible-cover="index === 0"></toc-item>
+
 
           <hr>
 
@@ -183,7 +188,7 @@
           <button v-else v-on:click="applyAllSuggestions">Apply all suggestions</button>
         </h2>
         <ul class="chapters">
-          <toc-item-edit-title v-for="(item, index) in params.structure" :item="item" :key="index" @preview="showPreview" @updatetitle="title => $set(params.structure, index, { ...item, title })" @updatesubtitle="subtitle => $set(params.structure, index, { ...item, subtitle })"></toc-item-edit-title>
+          <toc-item-edit-title v-for="(item, index) in params.structure" :item="item" :key="index" @preview="showPreview" @updatetitle="applyTitleSuggestion" @updatesubtitle="applySubtitleSuggestion"></toc-item-edit-title>
         </ul>
       </div>
 
