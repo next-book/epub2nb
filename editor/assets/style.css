@@ -43,6 +43,9 @@ input[type='text'] {
   margin: -1px -1px 0 0;
 }
 
+.nestable > .nestable-list {
+  padding-bottom: 2rem;
+}
 .nestable-item {
   position: relative;
 }
@@ -198,12 +201,6 @@ nav ul li.active {
   display: block;
 }
 
-.metadata input {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-}
-
 .metadata .chapters,
 .metadata .chapters li div {
   display: block;
@@ -215,6 +212,11 @@ nav ul li.active {
   margin-left: 2rem;
 }
 
+.metadata .chapters li div.title {
+  margin: 0;
+  grid-column: auto;
+}
+
 .metadata .chapters ol,
 .metadata .chapters ul {
   display: block;
@@ -223,7 +225,7 @@ nav ul li.active {
 
 .metadata .chapters li {
   display: grid;
-  grid-template-columns: 1fr 30vw 30vw;
+  grid-template-columns: 1fr 30vw 7em 30vw;
   grid-gap: 2rem;
   align-items: center;
 
