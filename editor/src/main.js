@@ -270,10 +270,6 @@ fetch('./params.json')
         navToData: function () {
           this.tab = 'data';
         },
-        updateItemTitle: function (object, propertyName, value) {
-          console.log(object, propertyName, value);
-          this.$set(this.epub.params.structure, propertyName, value);
-        },
         showPreview: function (filename) {
           this.previewUrl = filename ? `./readium/OEBPS/Text/${filename}` : null;
         },
