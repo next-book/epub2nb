@@ -94,6 +94,7 @@ function assembleTocItem(chapter) {
 function getReadingOrder(structure) {
   return structure.reduce((acc, chapter, index) => {
     if (
+      chapter.isSection ||
       chapter.role === 'remove' ||
       chapter.role === 'colophon' ||
       (chapter.role === 'cover' && index === 0)
@@ -120,6 +121,8 @@ function saveChapters(chapterTexts, structure, nbDir, level) {
       colophon.push(chapterTexts[chapter.filename]);
     } else if (chapter.role === 'cover' && index === 0) {
       fs.writeFileSync(path.join(nbDir, '_index.md'), chapterTexts[chapter.filename]);
+      saveSubchapters(chapterTexts, chapter, nbDir, level);
+    } else if (chapter.isSection) {
       saveSubchapters(chapterTexts, chapter, nbDir, level);
     } else {
       fs.writeFileSync(path.join(nbDir, chapter.filename), chapterTexts[chapter.filename]);
