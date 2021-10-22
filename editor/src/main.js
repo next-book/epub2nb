@@ -199,19 +199,21 @@ function prepElObj(elements) {
 }
 
 function prepStructure(chapters) {
-  return {
-    isSection: true,
-    id: 'section-1',
-    children: chapters.map((chapter, index) => ({
-      filename: chapter.filename,
-      xhtml: chapter.xhtml,
-      title: chapter.title,
-      id: index,
-      role: 'chapter',
-      numberedChildren: false,
-      inToc: true,
-    })),
-  };
+  return [
+    {
+      isSection: true,
+      id: 'section-1',
+      children: chapters.map((chapter, index) => ({
+        filename: chapter.filename,
+        xhtml: chapter.xhtml,
+        title: chapter.title,
+        id: index,
+        role: 'chapter',
+        numberedChildren: false,
+        inToc: true,
+      })),
+    },
+  ];
 }
 
 function loadCss(resources, setter) {
