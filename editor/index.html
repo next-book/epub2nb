@@ -122,11 +122,10 @@
 
           <toc-item v-for="(item, index) in params.structure" :item="item" :key="item.filename" :possible-cover="index === 0"></toc-item>
 
-
           <hr>
 
           <ul>
-            <li v-if="params.structure && params.structure[0].role === 'break'">
+            <li v-if="params.structure[0].role === 'break'">
               <span class="filename">{{params.structure[0].filename}}</span>
               <span class="title">Book cover</span>
             </li>
