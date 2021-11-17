@@ -72,12 +72,20 @@ function assembleTocBase(structure) {
   return structure
     .filter(
       chapter =>
-        chapter.inToc && chapter.title && (chapter.role === 'chapter' || chapter.role === 'break')
+        (chapter.isSection && chapter.children && chapter.children.length > 0) ||
+        (chapter.inToc && chapter.title && (chapter.role === 'chapter' || chapter.role === 'break'))
     )
     .map(assembleTocItem);
 }
 
 function assembleTocItem(chapter) {
+  if (chapter.isSection)
+    return {
+      id: chapter.id,
+      children: assembleTocBase(chapter.children),
+      numberedChildren: chapter.numberedChildren === true,
+    };
+
   const item = {
     link: chapter.filename.replace(/.md$/, '.html'),
     title: chapter.title,
