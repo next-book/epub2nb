@@ -19,12 +19,12 @@ input[type='text'] {
   width: 100%;
 }
 
-ul.simple {
+ul.plain {
   display: block;
   padding: 0;
 }
 
-ul.simple > li {
+ul.plain > li {
   display: block;
   list-style-type: none;
 }

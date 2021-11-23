@@ -128,7 +128,7 @@ Vue.component('toc-preview', {
     <ol v-if="listType === 'numbered'">
       <toc-item v-for="(item, index) in items" :item="item" :key="item.filename"></toc-item>
     </ol>
-    <ul v-else-if="listType === 'simple'" class="simple">
+    <ul v-else-if="listType === 'plain'" class="plain">
       <toc-item v-for="(item, index) in items" :item="item" :key="item.filename"></toc-item>
     </ul>
     <ul v-else>
@@ -196,7 +196,7 @@ Vue.component('toc-item-edit-title', {
         <ol v-if="item.listType === 'numbered'">
           <toc-item-edit-title v-for="item in item.children" :item="item" @updatetitle="filename => updateTitle(filename)" @updatesubtitle="updateSubtitle" :key="item.filename" @preview="filename => $emit('preview', filename)"></toc-item-edit-title>
         </ol>
-        <ul v-else-if="item.listType === 'simple'" class="simple">
+        <ul v-else-if="item.listType === 'plain'" class="plain">
           <toc-item-edit-title v-for="item in item.children" :item="item" @updatetitle="filename => updateTitle(filename)" @updatesubtitle="updateSubtitle" :key="item.filename" @preview="filename => $emit('preview', filename)"></toc-item-edit-title>
         </ul>
         <ul v-else>
@@ -272,7 +272,7 @@ function prepStructure(chapters) {
         title: chapter.title,
         id: index,
         role: 'chapter',
-        listType: 'simple',
+        listType: 'plain',
         inToc: true,
       })),
     },
@@ -292,7 +292,8 @@ function loadCss(resources, setter) {
 function upgradeStructure(items) {
   return items.map(item => {
     const updated = { ...item };
-    updated.listType = item.numberedChildren ? 'numbered' : 'simple';
+    if (item.listType === 'basic') updated.listType = 'plain';
+    else updated.listType = item.numberedChildren ? 'numbered' : 'plain';
 
     delete updated['numberedChildren'];
     delete updated['children'];
@@ -406,7 +407,7 @@ fetch('./params.json')
               inToc: true,
               id: `section-${number}`,
               children: [],
-              listType: 'simple',
+              listType: 'plain',
             },
           ];
         },

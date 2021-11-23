@@ -111,10 +111,10 @@
                   </label>
 
                   <div v-if="item.children && item.children.length" class="list-type">
-                    <label title="simple">
-                      <input type="radio" value="simple" v-model="item.listType">
+                    <label title="plain">
+                      <input type="radio" value="plain" v-model="item.listType">
                       <span class="btn">
-                        <span class="material-icons">menu</span> <span class="desc">simple</span>
+                        <span class="material-icons">menu</span> <span class="desc">plain</span>
                       </span>
                     </label>
 
@@ -143,7 +143,7 @@
         <div class="toc-preview">
           <h2>TOC preview</h2>
 
-          <toc-preview :items="params.structure" :list-type="'simple'"></toc-preview>
+          <toc-preview :items="params.structure" :list-type="'plain'"></toc-preview>
 
           <hr>
 
