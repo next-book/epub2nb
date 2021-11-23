@@ -67,36 +67,96 @@ Vue.component('html-preview', {
   props: ['src'],
 });
 
+Vue.component('toc-specials', {
+  template: `
+    <ul>
+      <li v-if="cover !== null">
+        <span class="filename">{{cover.filename}}</span>
+        <span class="title">Book cover</span>
+      </li>
+
+      <li v-for="item in colophon">
+        <span class="filename">{{item.filename}}</span>
+        <span class="title">Colophon (will be merged)</span>
+      </li>
+    </ul>
+  `,
+  methods: {
+    findInStructure: function (items, role) {
+      for (var i = 0; i <= items.length - 1; i++) {
+        const item = items[i];
+
+        if (item.role === role) return item;
+        else if (item.children && item.children.length > 0) {
+          const found = this.findInStructure(item.children, role);
+          if (found !== null) return found;
+        }
+      }
+
+      return null;
+    },
+    findAllInStructure: function (items, role) {
+      const all = [];
+
+      for (var i = 0; i <= items.length - 1; i++) {
+        const item = items[i];
+
+        if (item.role === role) all.push(item);
+
+        if (item.children && item.children.length > 0) {
+          const found = this.findAllInStructure(item.children, role);
+          if (found.length > 0) all.push(...found);
+        }
+      }
+
+      return all;
+    },
+  },
+  computed: {
+    cover: function () {
+      return this.findInStructure(this.structure, 'cover');
+    },
+    colophon: function () {
+      return this.findAllInStructure(this.structure, 'colophon');
+    },
+  },
+  props: ['structure'],
+});
+
+Vue.component('toc-preview', {
+  template: `
+    <ol v-if="listType === 'numbered'">
+      <toc-item v-for="(item, index) in items" :item="item" :key="item.filename"></toc-item>
+    </ol>
+    <ul v-else-if="listType === 'simple'" class="simple">
+      <toc-item v-for="(item, index) in items" :item="item" :key="item.filename"></toc-item>
+    </ul>
+    <ul v-else>
+      <toc-item v-for="(item, index) in items" :item="item" :key="item.filename"></toc-item>
+    </ul>
+  `,
+  props: ['items', 'listType'],
+});
+
 Vue.component('toc-item', {
   template: `
-    <li v-if="!item.isSection && item.title && item.role !== 'remove' && item.role !== 'colophon' && item.inToc && !(possibleCover && item.role === 'break')">
+    <li v-if="!item.isSection && item.title && item.role !== 'remove' && item.role !== 'colophon' && item.inToc && item.role !== 'cover'">
       <span class="filename">{{item.filename}}</span>
       <span class="title">{{item.title}}</span>
-      <div v-if="item.children && item.children.length > 1">
-        <ol v-if="item.numberedChildren">
-          <toc-item v-for="item in item.children" :item="item" :key="item.filename"></toc-item>
-        </ol>
-        <ul v-else>
-          <toc-item v-for="item in item.children" :item="item" :key="item.filename"></toc-item>
-        </ul>
-      </div>
+      <toc-preview v-if="item.children && item.children.length > 1" :items="item.children" :list-type="item.listType"></toc-preview>
     </li>
     <div v-else-if="item.isSection && item.children && item.children.length > 1">
-      <ol v-if="item.numberedChildren">
-        <toc-item v-for="item in item.children" :item="item" :key="item.filename"></toc-item>
-      </ol>
-      <ul v-else>
-        <toc-item v-for="item in item.children" :item="item" :key="item.filename"></toc-item>
-      </ul>
+      <toc-preview v-if="item.children && item.children.length > 1" :items="item.children" :list-type="item.listType"></toc-preview>
     </div>
   `,
-  props: ['item', 'possibleCover'],
+  props: ['item'],
 });
 
 Vue.component('icon', {
   template: `
-    <span v-if="role == 'chapter'" class="material-icons">subject</span>
-    <span v-else-if="role == 'break'" class="material-icons">photo</span>
+    <span v-if="role == 'cover'" class="material-icons">photo</span>
+    <span v-else-if="role == 'chapter'" class="material-icons">subject</span>
+    <span v-else-if="role == 'break'" class="material-icons">subtitles</span>
     <span v-else-if="role == 'colophon'" class="material-icons">copyright</span>
     <span v-else-if="role == 'remove'" class="material-icons">close</span>
     `,
@@ -133,9 +193,12 @@ Vue.component('toc-item-edit-title', {
       </label>
 
       <div v-if="item.children && item.children.length">
-        <ol v-if="item.numberedChildren">
+        <ol v-if="item.listType === 'numbered'">
           <toc-item-edit-title v-for="item in item.children" :item="item" @updatetitle="filename => updateTitle(filename)" @updatesubtitle="updateSubtitle" :key="item.filename" @preview="filename => $emit('preview', filename)"></toc-item-edit-title>
         </ol>
+        <ul v-else-if="item.listType === 'simple'" class="simple">
+          <toc-item-edit-title v-for="item in item.children" :item="item" @updatetitle="filename => updateTitle(filename)" @updatesubtitle="updateSubtitle" :key="item.filename" @preview="filename => $emit('preview', filename)"></toc-item-edit-title>
+        </ul>
         <ul v-else>
           <toc-item-edit-title v-for="item in item.children" :item="item" @updatetitle="filename => updateTitle(filename)" @updatesubtitle="updateSubtitle" :key="item.filename" @preview="filename => $emit('preview', filename)"></toc-item-edit-title>
         </ul>
@@ -209,7 +272,7 @@ function prepStructure(chapters) {
         title: chapter.title,
         id: index,
         role: 'chapter',
-        numberedChildren: false,
+        listType: 'simple',
         inToc: true,
       })),
     },
@@ -224,6 +287,20 @@ function loadCss(resources, setter) {
     .then(text => {
       setter(toJSON(text));
     });
+}
+
+function upgradeStructure(items) {
+  return items.map(item => {
+    const updated = { ...item };
+    updated.listType = item.numberedChildren ? 'numbered' : 'simple';
+
+    delete updated['numberedChildren'];
+    delete updated['children'];
+
+    updated.children = upgradeStructure(item.children);
+
+    return updated;
+  });
 }
 
 fetch('./params.json')
@@ -243,7 +320,7 @@ fetch('./params.json')
             ? {
                 metadata: data.params.metadata,
                 elements: { ...prepElObj(elements), ...data.params.elements },
-                structure: data.params.structure,
+                structure: upgradeStructure(data.params.structure),
               }
             : {
                 metadata: data.epub.metadata,
@@ -329,7 +406,7 @@ fetch('./params.json')
               inToc: true,
               id: `section-${number}`,
               children: [],
-              numberedChildren: true,
+              listType: 'simple',
             },
           ];
         },

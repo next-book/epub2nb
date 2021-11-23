@@ -19,6 +19,16 @@ input[type='text'] {
   width: 100%;
 }
 
+ul.simple {
+  display: block;
+  padding: 0;
+}
+
+ul.simple > li {
+  display: block;
+  list-style-type: none;
+}
+
 .els {
 }
 
@@ -83,20 +93,28 @@ input[type='text'] {
   display: none;
 }
 
-.role {
+.role,
+.list-type {
   display: flex;
 }
 
-.role label {
+.role label,
+.list-type label {
   display: block;
   margin: 0;
 }
 
-.role input {
+.role input,
+.list-type input {
   display: none;
 }
 
-.role .btn {
+.list-type {
+  padding-left: 1rem;
+}
+
+.role .btn,
+.list-type .btn {
   color: #777;
   display: block;
   margin: 0;
@@ -107,21 +125,25 @@ input[type='text'] {
   cursor: pointer;
 }
 
-.role .btn:hover {
+.role .btn:hover,
+.list-type .btn:hover {
   background: #eee;
 }
 
-.role input:checked + .btn {
+.role input:checked + .btn,
+.list-type input:checked + .btn {
   color: black;
   box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.7);
 }
 
-.role label:first-child .btn {
+.role label:first-child .btn,
+.list-type label:first-child .btn {
   border-width: 1px;
   border-radius: 3px 0 0 3px;
 }
 
-.role label:last-child .btn {
+.role label:last-child .btn,
+.list-type label:last-child .btn {
   border-radius: 0 3px 3px 0;
 }
 

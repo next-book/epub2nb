@@ -63,6 +63,13 @@
 
                 <div class="controls">
                   <div v-if="!item.isSection" class="role">
+                    <label title="cover">
+                      <input type="radio" value="cover" v-model="item.role">
+                      <span class="btn">
+                        <span class="material-icons">photo</span> <span class="desc">cover</span>
+                      </span>
+                    </label>
+
                     <label title="chapter">
                       <input type="radio" value="chapter" v-model="item.role">
                       <span class="btn">
@@ -73,7 +80,7 @@
                     <label v-if="!item.isSection" title="break">
                       <input type="radio" value="break" v-model="item.role">
                       <span class="btn">
-                        <span class="material-icons">photo</span> <span class="desc">break</span>
+                        <span class="material-icons">subtitles</span> <span class="desc">break</span>
                       </span>
                     </label>
 
@@ -103,12 +110,28 @@
                     <span v-else class="material-icons toggle-off">toggle_off</span>
                   </label>
 
-                  <label v-if="item.children && item.children.length" class="numbered-children">
-                    <input type="checkbox" v-model="item.numberedChildren">
+                  <div v-if="item.children && item.children.length" class="list-type">
+                    <label title="simple">
+                      <input type="radio" value="simple" v-model="item.listType">
+                      <span class="btn">
+                        <span class="material-icons">menu</span> <span class="desc">simple</span>
+                      </span>
+                    </label>
 
-                    <span v-if="item.numberedChildren" class="material-icons">format_list_numbered</span>
-                    <span v-else class="material-icons">reorder</span>
-                  </label>
+                    <label title="bulleted">
+                      <input type="radio" value="bulleted" v-model="item.listType">
+                      <span class="btn">
+                        <span class="material-icons">format_list_bulleted</span> <span class="desc">bulleted</span>
+                      </span>
+                    </label>
+
+                    <label title="numbered">
+                      <input type="radio" value="numbered" v-model="item.listType">
+                      <span class="btn">
+                        <span class="material-icons">format_list_numbered</span> <span class="desc">numbered</span>
+                      </span>
+                    </label>
+                  </div>
                 </div>
               </div>
             </vue-nestable-handle>
@@ -120,21 +143,11 @@
         <div class="toc-preview">
           <h2>TOC preview</h2>
 
-          <toc-item v-for="(item, index) in params.structure" :item="item" :key="item.filename" :possible-cover="index === 0"></toc-item>
+          <toc-preview :items="params.structure" :list-type="'simple'"></toc-preview>
 
           <hr>
 
-          <ul>
-            <li v-if="params.structure[0].role === 'break'">
-              <span class="filename">{{params.structure[0].filename}}</span>
-              <span class="title">Book cover</span>
-            </li>
-
-            <li v-for="item in params.structure" v-if="item.role === 'colophon'">
-              <span class="filename">{{item.filename}}</span>
-              <span class="title">Colophon (will be merged)</span>
-            </li>
-          </ul>
+          <toc-specials :structure="params.structure"></toc-specials>
 
           <div class="box">
             <p>Not included in TOC:</p>
