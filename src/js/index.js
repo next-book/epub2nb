@@ -108,7 +108,7 @@ function getReadingOrder(structure) {
       chapter.isSection ||
       chapter.role === 'remove' ||
       chapter.role === 'colophon' ||
-      (chapter.role === 'cover' && index === 0)
+      chapter.role === 'cover'
     )
       return acc;
     else {
@@ -128,7 +128,7 @@ function saveChapters(chapterTexts, structure, nbDir, level) {
       return;
     } else if (chapter.role === 'colophon') {
       colophon.push(chapterTexts[chapter.filename]);
-    } else if (chapter.role === 'cover' && index === 0) {
+    } else if (chapter.role === 'cover') {
       fs.writeFileSync(path.join(nbDir, '_index.md'), chapterTexts[chapter.filename]);
       saveSubchapters(chapterTexts, chapter, nbDir, level);
     } else if (chapter.isSection) {
