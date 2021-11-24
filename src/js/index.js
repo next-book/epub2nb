@@ -108,18 +108,15 @@ function replaceExt(filename) {
 }
 
 function getReadingOrder(structure) {
-  let cover = null;
   let colophon = null;
 
   function extractFilenames(structureLevel, lvl) {
     return structureLevel.reduce((acc, chapter, index) => {
-      if (chapter.role === 'remove') {
+      if (chapter.role === 'remove' || chapter.role === 'cover') {
         return acc;
       } else if (chapter.role === 'colophon') {
-        colophon = replaceExt(chapter.filename);
+        colophon = 'colophon.html';
         return acc;
-      } else if (chapter.role === 'cover') {
-        cover = replaceExt(chapter.filename);
       } else if (!chapter.isSection) {
         acc.push(replaceExt(chapter.filename));
       }
@@ -133,9 +130,7 @@ function getReadingOrder(structure) {
   }
 
   const readingOrder = extractFilenames(structure, 0);
-
-  if (colophon) readingOrder.unshift(colophon);
-  if (cover) readingOrder.unshift(cover);
+  if (colophon) readingOrder.push(colophon);
 
   return readingOrder;
 }
