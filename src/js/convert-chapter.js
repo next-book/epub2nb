@@ -114,10 +114,23 @@ const getClassSelector = classes =>
     .join(', ');
 
 const replaceResourceLinks = (text, resources) => {
-  return resources.reduce((acc, res) => {
-    const pattern = '\\([^\\s\\(]+(' + path.parse(res).base + ')\\)';
-    return acc.replace(new RegExp(pattern, 'g'), '(./resources/$1)');
-  }, text);
+  const links = [...text.matchAll(/\[.+?\]\((.+?)\)/g)]
+    .map(link => ({
+      link: link[1],
+      decoded: decodeURI(link[1]),
+      base: path.parse(decodeURI(link[1])).base,
+    }))
+    .filter(link => !link.decoded.match(/^#/) && !link.decoded.match(/^https?:\/\//));
+
+  const replacements = resources.reduce((acc, res) => {
+    acc[path.parse(res.src).base] = res.out;
+    return acc;
+  }, {});
+
+  return links.reduce(
+    (acc, l) => acc.replace(l.link, `./resources/${encodeURI(replacements[l.base])}`),
+    text
+  );
 };
 
 const convertChapter = (chapter, params, resources) => {

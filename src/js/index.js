@@ -5,6 +5,7 @@ const fsExtra = require('fs-extra');
 const cheerio = require('cheerio');
 const yaml = require('js-yaml');
 const fm = require('front-matter');
+const slugify = require('slugify');
 
 const analyze = require('./analyze');
 const { convertChapter, getTitle, createSelectors } = require('./convert-chapter');
@@ -31,11 +32,11 @@ const convertBook = (dir, github) => {
 
     manifest.resources.forEach(res => {
       if (res.type.match(/image/)) {
-        const name = path.parse(res.href).base;
+        const name = slugify(path.parse(res.href).base, { lower: true });
 
         fs.copyFileSync(path.join(readiumDir, res.href), path.join(resourcesDir, name));
 
-        resources.push(name);
+        resources.push({ src: res.href, out: name });
       }
     });
 
@@ -245,7 +246,7 @@ function prepDirs(dir) {
   fs.mkdirSync(nbDir);
 
   fs.mkdirSync(resourcesDir);
-  fs.writeFileSync(path.join(resourcesDir, '_index.md'), '');
+  fs.writeFileSync(path.join(resourcesDir, 'index.md'), '---\nheadless: true\n---\n');
 
   return { readiumDir, nbDir, resourcesDir };
 }
