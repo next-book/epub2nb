@@ -12,6 +12,8 @@ const epub2readium = require('./epub2readium');
 
 const PKG_DIR = path.join(__dirname, '../../');
 
+const colophon = [];
+
 const convertBook = (dir, github) => {
   const { readiumDir, nbDir, resourcesDir } = prepDirs(dir);
 
@@ -43,6 +45,7 @@ const convertBook = (dir, github) => {
     }, {});
 
     saveChapters(chapterTexts, params.params ? params.params.structure : [], nbDir, 0);
+    fs.writeFileSync(path.join(nbDir, 'colophon.md'), prepColophon(colophon));
 
     const paramsData = compileParams(params, manifest, chapters, github);
     fs.writeFileSync(getParamsPath(dir), paramsData);
@@ -120,8 +123,6 @@ function getReadingOrder(structure) {
 }
 
 function saveChapters(chapterTexts, structure, nbDir, level) {
-  const colophon = [];
-
   structure.forEach((chapter, index) => {
     if (chapter.role === 'remove') {
       return;
@@ -137,8 +138,6 @@ function saveChapters(chapterTexts, structure, nbDir, level) {
       saveSubchapters(chapterTexts, chapter, nbDir, level);
     }
   });
-
-  fs.writeFileSync(path.join(nbDir, 'colophon.md'), prepColophon(colophon));
 }
 
 function prepColophon(colophon) {
