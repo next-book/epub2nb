@@ -63,7 +63,7 @@ function createBookFile(params, chapterTexts) {
     slug: 'book',
     languageCode: params && params.metadata ? params.metadata.languageCode : 'en',
     meta: params && params.metadata,
-    chapters: getReadingOrder(params ? params.structure : [], 0),
+    readingOrder: getReadingOrder(params ? params.structure : [], 0),
     tocBase: params && params.structure ? assembleTocBase(params.structure) : null,
     static: ['style', 'scripts', 'title', 'fonts', 'resources', 'favicon.png'],
   });
@@ -102,24 +102,41 @@ function assembleTocItem(chapter) {
   return item;
 }
 
+function replaceExt(filename) {
+  return filename.replace(/.md$/, '.html');
+}
+
 function getReadingOrder(structure) {
-  return structure.reduce((acc, chapter, index) => {
-    if (
-      chapter.isSection ||
-      chapter.role === 'remove' ||
-      chapter.role === 'colophon' ||
-      chapter.role === 'cover'
-    )
+  let cover = null;
+  let colophon = null;
+
+  function extractFilenames(structureLevel, lvl) {
+    return structureLevel.reduce((acc, chapter, index) => {
+      if (chapter.role === 'remove') {
+        return acc;
+      } else if (chapter.role === 'colophon') {
+        colophon = replaceExt(chapter.filename);
+        return acc;
+      } else if (chapter.role === 'cover') {
+        cover = replaceExt(chapter.filename);
+      } else if (!chapter.isSection) {
+        acc.push(replaceExt(chapter.filename));
+      }
+
+      if (chapter.children && chapter.children.length > 0) {
+        acc.push(...extractFilenames(chapter.children, lvl + 1));
+      }
+
       return acc;
-    else {
-      acc.push(chapter.filename.replace(/.md$/, '.html'));
+    }, []);
+  }
 
-      if (chapter.children && chapter.children.length > 0)
-        acc.push(...getReadingOrder(chapter.children));
-    }
+  const readingOrder = extractFilenames(structure, 0);
 
-    return acc;
-  }, []);
+  if (colophon) readingOrder.unshift(colophon);
+  if (cover) readingOrder.unshift(cover);
+
+  return readingOrder;
 }
 
 function saveChapters(chapterTexts, structure, nbDir, level) {
