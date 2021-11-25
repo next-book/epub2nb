@@ -113,7 +113,11 @@ const getClassSelector = classes =>
     .map(className => `.${className.trim()}`)
     .join(', ');
 
-const replaceResourceLinks = (text, resources) => {
+/**
+ * Uses just filename for matching. If there are multiple files
+ * with the same name in various folders, this method does not work.
+ */
+const updateResourceLinksByFilename = (text, resources) => {
   const links = [...text.matchAll(/\[.+?\]\((.+?)\)/g)]
     .map(link => ({
       link: link[1],
@@ -145,7 +149,7 @@ const convertChapter = (chapter, params, resources) => {
   const frontMatter = yaml.dump(meta);
 
   // replace resource uris
-  const withResources = replaceResourceLinks(md, resources);
+  const withResources = updateResourceLinksByFilename(md, resources);
 
   return `---\n${frontMatter.trim()}\n---\n\n${withResources}\n`;
 };
