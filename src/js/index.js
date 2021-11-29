@@ -40,8 +40,10 @@ const convertBook = (dir, github) => {
       }
     });
 
+    const hiddenTitles = params.params ? getHiddenTitleFilenames(params.params.structure) : [];
+
     const chapterTexts = chapters.reduce((acc, chapter, index) => {
-      acc[chapter.out] = convertChapter(chapter, params, resources);
+      acc[chapter.out] = convertChapter(chapter, params, hiddenTitles, resources);
       return acc;
     }, {});
 
@@ -72,6 +74,17 @@ function createBookFile(params, chapterTexts) {
   return `---\n${frontMatter.trim()}\n---\n`;
 }
 
+function getHiddenTitleFilenames(structure) {
+  const filenames = [];
+
+  return structure.reduce((acc, chapter) => {
+    if (chapter.hiddenTitle) acc.push(chapter.filename);
+    if (chapter.children && chapter.children.length > 0)
+      acc = [...acc, ...getHiddenTitleFilenames(chapter.children)];
+    return acc;
+  }, []);
+}
+
 function assembleTocBase(structure) {
   return structure
     .filter(
@@ -93,6 +106,7 @@ function assembleTocItem(chapter) {
   const item = {
     link: chapter.filename.replace(/.md$/, '.html'),
     title: chapter.title,
+    hiddenTitle: chapter.hiddenTitle,
   };
 
   if (chapter.children && chapter.children.length > 0) {

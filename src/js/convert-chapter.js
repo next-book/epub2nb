@@ -138,6 +138,7 @@ const updateResourceLinksByFilename = (text, resources) => {
 };
 
 const convertChapter = (chapter, params, resources) => {
+const convertChapter = (chapter, params, hiddenTitles, resources) => {
   const { text, meta } =
     params.params && params.params.elements
       ? replaceElements(chapter.text, params.params.elements, params.epub.classes)
@@ -146,6 +147,7 @@ const convertChapter = (chapter, params, resources) => {
   // turn to md
   const md = turndownService.turndown(text);
 
+  if (hiddenTitles.includes(chapter.out)) meta.hiddenTitle = true;
   const frontMatter = yaml.dump(meta);
 
   // replace resource uris

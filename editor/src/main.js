@@ -274,6 +274,7 @@ function prepStructure(chapters) {
         role: 'chapter',
         listType: 'plain',
         inToc: true,
+        hiddenTitle: false,
       })),
     },
   ];
