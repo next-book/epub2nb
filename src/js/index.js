@@ -68,7 +68,7 @@ function createBookFile(params, chapterTexts) {
     meta: params && params.metadata,
     readingOrder: getReadingOrder(params ? params.structure : [], 0),
     tocBase: params && params.structure ? assembleTocBase(params.structure) : null,
-    static: ['style', 'scripts', 'title', 'fonts', 'resources', 'favicon.png'],
+    static: ['style', 'scripts', 'title', 'fonts', 'resources', 'template-images', 'favicon.png'],
   });
 
   return `---\n${frontMatter.trim()}\n---\n`;
