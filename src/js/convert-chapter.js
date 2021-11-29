@@ -137,7 +137,15 @@ const updateResourceLinksByFilename = (text, resources) => {
   );
 };
 
-const convertChapter = (chapter, params, resources) => {
+const replaceFootnotes = mdText => {
+  // format example
+  // [94](#footnote-19288-94-backlink)
+  // [94](#footnote-19288-94)
+  return mdText
+    .replace(/\n\[(\d+)\]\(#footnote-[^\)]+?-backlink\) ?/g, '\n[^$1]: ')
+    .replace(/\[(\d+)\]\(#footnote-[^\)]+?\)/g, '[^$1]');
+};
+
 const convertChapter = (chapter, params, hiddenTitles, resources) => {
   const { text, meta } =
     params.params && params.params.elements
@@ -147,11 +155,13 @@ const convertChapter = (chapter, params, hiddenTitles, resources) => {
   // turn to md
   const md = turndownService.turndown(text);
 
+  const withFootnotes = replaceFootnotes(md);
+
   if (hiddenTitles.includes(chapter.out)) meta.hiddenTitle = true;
   const frontMatter = yaml.dump(meta);
 
   // replace resource uris
-  const withResources = updateResourceLinksByFilename(md, resources);
+  const withResources = updateResourceLinksByFilename(withFootnotes, resources);
 
   return `---\n${frontMatter.trim()}\n---\n\n${withResources}\n`;
 };
