@@ -100,7 +100,8 @@ function assembleTocItem(chapter) {
     return {
       id: chapter.id,
       children: assembleTocBase(chapter.children),
-      numberedChildren: chapter.numberedChildren === true,
+      isSection: true,
+      listType: chapter.listType,
     };
 
   const item = {
@@ -111,7 +112,7 @@ function assembleTocItem(chapter) {
 
   if (chapter.children && chapter.children.length > 0) {
     item.children = assembleTocBase(chapter.children);
-    item.numberedChildren = chapter.numberedChildren;
+    item.listType = chapter.listType;
   }
 
   return item;
