@@ -225,6 +225,10 @@ function compileParams(params, manifest, chapters, github) {
           author: manifest.metadata.author,
           publisher: manifest.metadata.publisher,
           modified: manifest.metadata.modified,
+          publisherShort: manifest.metadata.publisherShort,
+          edition: manifest.metadata.edition,
+          languageCode: manifest.metadata.languageCode,
+          yearPublished: manifest.metadata.yearPublished,
         },
         chapters: chapters.map(chapter => ({
           titleSuggest: selectors.title !== null ? getTitle(chapter.dom, selectors.title) : '',

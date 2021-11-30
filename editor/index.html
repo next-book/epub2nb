@@ -176,9 +176,19 @@
           <input type="text" v-model="params.metadata.author">
         </label>
         <label>
+          Edition
+          <input type="text" v-model="params.metadata.edition">
+        </label>
+
+        <label>
           Publisher
           <input type="text" v-model="params.metadata.publisher">
         </label>
+        <label>
+          Publisher (short)
+          <input type="text" v-model="params.metadata.publisherShort">
+        </label>
+
         <label>
           ISBN
           <input type="text" v-model="params.metadata.isbn">
@@ -186,6 +196,11 @@
         <label>
           Identifier
           <input type="text" v-model="params.metadata.identifier">
+        </label>
+
+        <label>
+          Year of publishing
+          <input type="text" v-model="params.metadata.yearPublished">
         </label>
         <label>
           Language<br>
