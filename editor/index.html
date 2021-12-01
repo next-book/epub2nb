@@ -231,7 +231,10 @@
       <div v-if="tab == 'data'">
         <p v-if="paramsUrl" class="paramsLink"><a target="_blank" :href="paramsUrl">params.json in the repository</a></p>
 
-        <p class="copyButton"><button id="copy-report" v-on:click="copyReport">Copy all data</button></p>
+        <p class="copyButton">
+          <button id="copy-report" v-on:click="copyReport">Copy all data</button>
+          <label><input type="checkbox" v-model="extractionComplete"> extraction complete</label>
+        </p>
 
         <textarea id="report">{{ exportedData }}</textarea>
       </div>

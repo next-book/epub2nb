@@ -317,6 +317,7 @@ fetch('./params.json')
         previewTab: 'preview',
         tab: 'metadata',
         elements,
+        extractionComplete: data.extractionComplete || false,
         params:
           data.params && Object.keys(data.params).length
             ? {
@@ -330,6 +331,7 @@ fetch('./params.json')
                 structure: prepStructure(data.epub.chapters),
               },
         epub: data.epub,
+        extractionComplete: data.extractionComplete,
         css: '',
       },
       created: function (props) {
@@ -437,7 +439,11 @@ fetch('./params.json')
           return this.epub.classes.filter(name => !matched.includes(name));
         },
         exportedData: function () {
-          return JSON.stringify({ params: this.params, epub: this.epub }, null, 2);
+          return JSON.stringify(
+            { extractionComplete: this.extractionComplete, params: this.params, epub: this.epub },
+            null,
+            2
+          );
         },
         paramKeys: function () {
           return Object.keys(this.params.elements);
