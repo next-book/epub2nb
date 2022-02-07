@@ -68,6 +68,7 @@ ul.plain > li {
   display: none;
 }
 
+.hungry-toggle,
 .show-in-toc {
   display: block;
   margin: 0 0 0 1rem;
@@ -88,6 +89,7 @@ ul.plain > li {
   cursor: pointer;
 }
 
+.hungry-toggle input,
 .show-in-toc input,
 .numbered-children input {
   display: none;
@@ -170,12 +172,21 @@ ul.plain > li {
   text-decoration: line-through;
 }
 
+.removed .hungry-toggle,
 .removed .show-in-toc {
   opacity: 10%;
 }
 
 .not-in-toc h2 {
   opacity: 0.5;
+}
+
+.hungry {
+  border: solid red;
+}
+
+.devoured {
+  border: solid blue;
 }
 
 .toc-preview > ul {

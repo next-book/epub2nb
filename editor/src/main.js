@@ -274,6 +274,8 @@ function prepStructure(chapters) {
         role: 'chapter',
         listType: 'plain',
         inToc: true,
+        hungry: false,
+        devoured: false,
         hiddenTitle: false,
       })),
     },
@@ -338,6 +340,9 @@ fetch('./params.json')
         loadCss(data.epub.resources, this.setCss);
       },
       methods: {
+        updateDevoured: function () {
+          this.params.structure = [...this.updateDevouredRecursive(this.params.structure)];
+        },
         setCss: function (css) {
           this.css = css;
         },
@@ -363,6 +368,35 @@ fetch('./params.json')
           let textarea = document.getElementById('report');
           textarea.select();
           document.execCommand('copy');
+        },
+        updateDevouredRecursive: function (items) {
+          let devour = false;
+
+          return items.map(item => {
+            if (item.hungry) {
+              devour = true;
+
+              return {
+                ...item,
+                devoured: false,
+              };
+            }
+
+            if (item?.children?.length) {
+              devour = false;
+
+              return {
+                ...item,
+                devoured: false,
+                children: this.updateDevouredRecursive(item.children),
+              };
+            }
+
+            return {
+              ...item,
+              devoured: devour,
+            };
+          });
         },
         applyAllSuggestions: function () {
           this.params.structure = [...this.applySuggestion(this.params.structure, true, true)];

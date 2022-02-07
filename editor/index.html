@@ -51,7 +51,7 @@
               slot-scope="{ item }"
               :item="item">
 
-              <div v-bind:class="[ (item.role == 'remove') ? 'removed' : '', !item.inToc ? 'not-in-toc' : '' ]">
+              <div v-bind:class="[ (item.role == 'remove') ? 'removed' : '', !item.inToc ? 'not-in-toc' : '', item.hungry ? 'hungry' : '', item.devoured ? 'devoured' : '' ]">
                 <h2 v-if="item.isSection">Section</h2>
                 <h2 v-else>
                   <icon :role="item.role"></icon>
@@ -98,6 +98,17 @@
                       </span>
                     </label>
                   </div>
+
+                  <label v-if="!item.isSection" class="hungry-toggle" @change="updateDevoured">
+                    <span class="btn">
+                      <span class="material-icons">publish</span> <span>hungry</span>
+                    </span>
+
+                    <input type="checkbox" v-model="item.hungry">
+
+                    <span v-if="item.hungry" class="material-icons toggle-on">toggle_on</span>
+                    <span v-else class="material-icons toggle-off">toggle_off</span>
+                  </label>
 
                   <label v-if="!item.isSection" class="show-in-toc">
                     <span class="btn">
