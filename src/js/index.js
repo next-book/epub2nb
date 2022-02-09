@@ -64,6 +64,7 @@ function createBookFile(params, chapterTexts) {
   const frontMatter = yaml.dump({
     outputs: 'meta',
     slug: 'book',
+    contentType: 'prose',
     languageCode: params && params.metadata ? params.metadata.languageCode : 'en',
     meta: params && params.metadata,
     readingOrder: getReadingOrder(params ? params.structure : [], 0),
