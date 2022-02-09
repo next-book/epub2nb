@@ -181,12 +181,16 @@ ul.plain > li {
   opacity: 0.5;
 }
 
-.hungry {
-  border: solid red;
+.nestable-handle > div.hungry {
+  color: navy;
+  border: 1px solid navy;
+  border-bottom: 1px dashed navy;
 }
 
-.devoured {
-  border: solid blue;
+.nestable-handle > div.devoured {
+  color: brown;
+  border: 1px solid brown;
+  border-top: 1px dashed brown;
 }
 
 .toc-preview > ul {

@@ -140,7 +140,7 @@ Vue.component('toc-preview', {
 
 Vue.component('toc-item', {
   template: `
-    <li v-if="!item.isSection && item.title && item.role !== 'remove' && item.role !== 'colophon' && item.inToc && item.role !== 'cover'">
+    <li v-if="!item.isSection && !item.devoured && item.title && item.role !== 'remove' && item.role !== 'colophon' && item.inToc && item.role !== 'cover'">
       <span class="filename">{{item.filename}}</span>
       <span class="title">{{item.title}}</span>
       <toc-preview v-if="item.children && item.children.length > 1" :items="item.children" :list-type="item.listType"></toc-preview>
@@ -382,7 +382,7 @@ fetch('./params.json')
               };
             }
 
-            if (item?.children?.length) {
+            if (item.role !== 'chapter' || item?.children?.length) {
               devour = false;
 
               return {
@@ -395,6 +395,7 @@ fetch('./params.json')
             return {
               ...item,
               devoured: devour,
+              children: this.updateDevouredRecursive(item.children),
             };
           });
         },

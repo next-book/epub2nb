@@ -62,7 +62,7 @@
                 </h2>
 
                 <div class="controls">
-                  <div v-if="!item.isSection" class="role">
+                  <div v-if="!item.isSection && !item.devoured" class="role">
                     <label title="cover">
                       <input type="radio" value="cover" v-model="item.role">
                       <span class="btn">
@@ -99,7 +99,7 @@
                     </label>
                   </div>
 
-                  <label v-if="!item.isSection" class="hungry-toggle" @change="updateDevoured">
+                  <label v-if="!item.isSection && item.role === 'chapter' && item.children.length == 0" class="hungry-toggle" @change="updateDevoured">
                     <span class="btn">
                       <span class="material-icons">publish</span> <span>hungry</span>
                     </span>
@@ -110,7 +110,7 @@
                     <span v-else class="material-icons toggle-off">toggle_off</span>
                   </label>
 
-                  <label v-if="!item.isSection" class="show-in-toc">
+                  <label v-if="!item.isSection && !item.devoured" class="show-in-toc">
                     <span class="btn">
                       <span class="material-icons">list</span> <span>in TOC</span>
                     </span>
@@ -175,6 +175,23 @@
 
       <div class="metadata" v-if="tab == 'metadata'">
         <label>
+          Language<br>
+          <select v-model="params.metadata.languageCode">
+            <option value="cs">czech</option>
+            <option value="en">english</option>
+          </select>
+        </label>
+
+        <label>
+          Content template<br>
+          <select v-model="params.metadata.contentType">
+            <option value="prose">prose</option>
+            <option value="poetry">poetry</option>
+            <option value="drama">drama</option>
+          </select>
+        </label>
+
+        <label>
           Title
           <input type="text" v-model="params.metadata.title">
         </label>
@@ -212,13 +229,6 @@
         <label>
           Year of publishing
           <input type="text" v-model="params.metadata.yearPublished">
-        </label>
-        <label>
-          Language<br>
-          <select v-model="params.metadata.languageCode">
-            <option value="cs">czech</option>
-            <option value="en">english</option>
-          </select>
         </label>
 
         <h2>Chapter titles

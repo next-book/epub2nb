@@ -21,6 +21,8 @@
 .nestable-item,
 .nestable-item-copy {
   background-color: white;
+}
+.nestable-handle > div {
   border: 1px solid var(--gray);
   padding: 0.5rem 0 0.5rem 0.5rem;
   margin: 10px -1px 0 0;
