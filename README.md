@@ -52,7 +52,7 @@ Najdete zde odkazy na
 
 ### Jak upravit vygenerovanou knihu?
 
-Konvertor se snaží vytáhnout co nejvíce informací ze samotného EPUBu, ale některé informace je nutné doplnit: týká se to především struktury obsahu a metadat. K tomu můžete použít rozhraní konvertoru (viz odkaz v předchozí sekci).
+Konvertor se snaží vytáhnout co nejvíce informací ze samotného EPUBu, ale některé informace je možné doplnit: týká se to především struktury obsahu a metadat. K tomu můžete použít rozhraní konvertoru (viz odkaz v předchozí sekci).
 
 Nejdůležitější funkcionalita konvertoru je následující:
 
