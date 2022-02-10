@@ -4,8 +4,8 @@ _Tento návod obsahuje jen základní informace psané na míru pro tým MKP. Po
 
 ## Rychlé odkazy
 
-šablona: (github.com/next-book/boilerplate)[https://github.com/next-book/boilerplate]
-seznam knih: (books-are-next.github.io)[https://books-are-next.github.io]
+- šablona (github.com/next-book/boilerplate)[https://github.com/next-book/boilerplate]
+- seznam knih (books-are-next.github.io)[https://books-are-next.github.io]
 
 ## Postup
 
@@ -46,7 +46,7 @@ Odkazy na exportované knihy jsou nejlépe k nalezení v (seznamu knih)[https://
 Najdete zde odkazy na
 
 - **repo** — samotný repozitář s uloženou knihou
-- **actions** —
+- **actions** — záložka v repozitáři, kde je vidět proces generování knih (zásadní jsou červené puntíky a zelené fajfky, které indikují úspěch konverze)
 - **book** — vygenerovaná kniha
 - **converter** — rozhraní konvertoru pro doplnění detailů knihy
 
