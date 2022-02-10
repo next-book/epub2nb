@@ -4,8 +4,8 @@ _Tento návod obsahuje jen základní informace psané na míru pro tým MKP. Po
 
 ## Rychlé odkazy
 
-- šablona (github.com/next-book/boilerplate)[https://github.com/next-book/boilerplate]
-- seznam knih (books-are-next.github.io)[https://books-are-next.github.io]
+- šablona [github.com/next-book/boilerplate](https://github.com/next-book/boilerplate)
+- seznam knih [books-are-next.github.io](https://books-are-next.github.io)
 
 ## Postup
 
@@ -41,7 +41,7 @@ Po chvíli se zobrazí zelený pruh s informací, že kniha byla publikována.
 
 ### Jak omkrnout knihu
 
-Odkazy na exportované knihy jsou nejlépe k nalezení v (seznamu knih)[https://books-are-next.github.io]. Knihy se ukládají do počítače, aby je bylo možné číst v offline režimu — proto je pro náhled na aktuální knihu potřebné použít anonymní okno (pokud uděláte knize změny, uvidíte nejspíš starší verzi knihy).
+Odkazy na exportované knihy jsou nejlépe k nalezení v [seznamu knih](https://books-are-next.github.io). Knihy se ukládají do počítače, aby je bylo možné číst v offline režimu — proto je pro náhled na aktuální knihu potřebné použít anonymní okno (pokud uděláte knize změny, uvidíte nejspíš starší verzi knihy).
 
 Najdete zde odkazy na
 
