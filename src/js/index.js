@@ -128,7 +128,7 @@ function getReadingOrder(structure) {
 
   function extractFilenames(structureLevel, lvl) {
     return structureLevel.reduce((acc, chapter, index) => {
-      if (chapter.role === 'remove' || chapter.role === 'cover') {
+      if (chapter.role === 'remove' || chapter.role === 'cover' || chapter.devoured) {
         return acc;
       } else if (chapter.role === 'colophon') {
         colophon = 'colophon.html';
