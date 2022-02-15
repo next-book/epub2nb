@@ -443,3 +443,29 @@ nav ul li.active {
 .suggested-title:hover {
   background: white;
 }
+
+.replacement-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-gap: 1rem;
+  border-bottom: 1px solid #aaa;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.replacement-grid p {
+  margin: 0;
+}
+
+.replacement-grid textarea {
+  font-family: monospace;
+  padding: 0.5rem;
+}
+
+.replacement-grid pre {
+  margin: 0;
+  font-family: monospace;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 2px;
+}

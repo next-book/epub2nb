@@ -46,6 +46,7 @@
           <li v-on:click="navToMeta" :class="[tab == 'metadata' ? 'active' : '']">Metadata</li>
           <li v-on:click="navToStructure" :class="[tab == 'structure' ? 'active' : '']">Structure</li>
           <li v-on:click="navToFormat" :class="[tab == 'format' ? 'active' : '']">Format</li>
+          <li v-on:click="navToReplacements" :class="[tab == 'replacements' ? 'active' : '']">Replacements</li>
           <li v-on:click="navToData" :class="[tab == 'data' ? 'active' : '']">Data export</li>
         </ul>
       </nav>
@@ -253,6 +254,11 @@
         <ul class="unused-classes">
           <li v-for="name in unmatchedClassNames"><css-preview :name="name" :styles="css"></css-preview></li>
         </ul>
+      </div>
+
+      <div v-if="tab == 'replacements'" class="replacements">
+        <replacements v-for="(r, index) in params.replacements" :key="index" :item="r" :index="index" @update="updateReplacement" @remove="removeReplacement"></replacements>
+        <button v-on:click="addReplacement">Add replacement</button>
       </div>
 
       <div v-if="tab == 'data'">

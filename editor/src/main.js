@@ -163,6 +163,69 @@ Vue.component('icon', {
   props: ['role'],
 });
 
+Vue.component('replacements', {
+  template: `
+    <div class="replacement-grid">
+      <p>
+        <label>
+          Find
+          <input type="text" v-model="item.find" @input="update">
+        </label>
+        <label>
+          <input type="checkbox" v-model="item.regex" @change="update"> Regex
+        </label>
+        <label>
+          Replace
+          <input type="text" v-model="item.replace" @input="update">
+        </label>
+      </p>
+      <p>
+        <label>
+          Example
+          <textarea rows="3" cols="30" v-model="item.example" @input="update"></textarea>
+        </label>
+      </p>
+      <div>
+        <p>Preview</p>
+        <pre>{{preview}}</pre>
+      </div>
+      <p>
+        <button @click="remove">Remove</button>
+      </p>
+    </div>
+  `,
+  methods: {
+    update: function () {
+      this.$emit('update', { index: this.index, item: this.item });
+    },
+    remove: function () {
+      this.$emit('remove', this.index);
+    },
+  },
+  computed: {
+    preview: function () {
+      if (this.compRegex === null) return 'Error: bad regex';
+      if (this.item.example === undefined) return '—';
+
+      return `${this.item.example}`.replace(this.compRegex, this.item.replace) || '';
+    },
+    compRegex: function () {
+      const find = `${this.item.find}`;
+
+      try {
+        if (this.item.regex) {
+          return new RegExp(`${find}`, 'g');
+        } else {
+          return new RegExp(`${find.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}`, 'g');
+        }
+      } catch {
+        return null;
+      }
+    },
+  },
+  props: ['item', 'index'],
+});
+
 Vue.component('toc-item-edit-title', {
   template: `
     <li v-if="item.role !== 'remove'">
@@ -328,11 +391,13 @@ fetch('./params.json')
                 metadata: data.params.metadata,
                 elements: { ...prepElObj(elements), ...data.params.elements },
                 structure: upgradeStructure(data.params.structure),
+                replacements: data.params.replacements ? [...data.params.replacements] : [],
               }
             : {
                 metadata: data.epub.metadata,
                 elements: prepElObj(elements),
                 structure: prepStructure(data.epub.chapters),
+                replacements: [],
               },
         epub: data.epub,
         extractionComplete: data.extractionComplete,
@@ -356,6 +421,9 @@ fetch('./params.json')
         },
         navToFormat: function () {
           this.tab = 'format';
+        },
+        navToReplacements: function () {
+          this.tab = 'replacements';
         },
         navToData: function () {
           this.tab = 'data';
@@ -452,6 +520,20 @@ fetch('./params.json')
           ];
         },
         removeSection: function () {},
+        addReplacement: function () {
+          const r = this.params.replacements || [];
+          this.params.replacements = [...r, {}];
+        },
+        removeReplacement: function (index) {
+          const r = this.params.replacements;
+          delete r[index];
+          this.params.replacements = [...r].filter(item => item);
+        },
+        updateReplacement: function ({ index, item }) {
+          const r = this.params.replacements;
+          r[index] = item;
+          this.params.replacements = [...r];
+        },
       },
       computed: {
         generatedAgo: function () {

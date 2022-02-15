@@ -146,6 +146,26 @@ const replaceFootnotes = mdText => {
     .replace(/\[(\d+)\]\(#footnote-[^\)]+?\)/g, '[^$1]');
 };
 
+const applyFilters = (text, filters) => {
+  let result = text;
+
+  filters.forEach(f => {
+    if (f.find === '' || f.find === null || f.find === undefined) return;
+    const find = `${f.find}`;
+
+    if (f.regex) {
+      result = result.replace(new RegExp(`${find}`, 'g'), f.replace);
+    } else {
+      result = result.replace(
+        new RegExp(`${find.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}`, 'g'),
+        f.replace
+      );
+    }
+  });
+
+  return result;
+};
+
 const convertChapter = (chapter, params, hiddenTitles, resources) => {
   const { text, meta } =
     params.params && params.params.elements
@@ -163,7 +183,11 @@ const convertChapter = (chapter, params, hiddenTitles, resources) => {
   // replace resource uris
   const withResources = updateResourceLinksByFilename(withFootnotes, resources);
 
-  return `---\n${frontMatter.trim()}\n---\n\n${withResources}\n`;
+  // apply find & replace filters
+  const rs = params.params.replacements;
+  const filtered = rs && rs.length > 0 ? applyFilters(withResources, rs) : withResources;
+
+  return `---\n${frontMatter.trim()}\n---\n\n${filtered}\n`;
 };
 
 module.exports = { getTitle, convertChapter, createSelectors };
