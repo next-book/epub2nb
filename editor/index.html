@@ -106,7 +106,7 @@
                     </label>
                   </div>
 
-                  <label v-if="!item.isSection && item.role === 'chapter' && item.children.length == 0" class="hungry-toggle" @change="updateDevoured">
+                  <label v-if="!item.isSection && item.role === 'chapter' && (!item.children ||  item.children.length == 0)" class="hungry-toggle" @change="updateDevoured">
                     <span class="btn">
                       <span class="material-icons">publish</span> <span>hungry</span>
                     </span>
