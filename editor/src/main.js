@@ -4,6 +4,7 @@ import { toCSS, toJSON } from 'cssjson';
 import { html_beautify } from 'js-beautify';
 
 import AutoComplete from './autocomplete';
+import mlpClasses from './mlp-classes';
 
 Vue.use(VueNestable);
 Vue.component('autocomplete', AutoComplete);
@@ -533,6 +534,27 @@ fetch('./params.json')
           const r = this.params.replacements;
           r[index] = item;
           this.params.replacements = [...r];
+        },
+        clearClasses: function () {
+          this.params.elements = prepElObj(elements);
+        },
+        addMlpClasses: function () {
+          this.params.elements = Object.entries(this.params.elements).reduce(
+            (acc, [key, value]) => {
+              acc[key] = [value, mlpClasses[key]]
+                .join('\n')
+                .trim()
+                .split(/\s/g)
+                .filter(this.isUnique)
+                .sort()
+                .join('\n');
+              return acc;
+            },
+            {}
+          );
+        },
+        isUnique: function (value, index, self) {
+          return self.indexOf(value) === index;
         },
       },
       computed: {

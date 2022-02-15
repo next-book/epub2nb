@@ -248,6 +248,10 @@
       </div>
 
       <div v-if="tab == 'format'" class="els">
+        <p class="class-buttons">
+          <button @click="clearClasses">Clear classes</button>
+          <button @click="addMlpClasses">Prefill MLP class set</button>
+        </p>
         <autocomplete v-for="el in elements" v-bind:key="el.name" :label="el.title" rows="5" :items="epub.classes" textarea="true" v-model="params.elements[el.name]"></autocomplete>
 
         <h2>Unused classes</h2>
