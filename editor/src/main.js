@@ -325,6 +325,14 @@ function prepElObj(elements) {
   }, {});
 }
 
+function prepMetadataObj(metadata) {
+  return {
+    languageCode: 'cs',
+    contentType: 'prose',
+    ...metadata,
+  };
+}
+
 function prepStructure(chapters) {
   return [
     {
@@ -389,14 +397,14 @@ fetch('./params.json')
         params:
           data.params && Object.keys(data.params).length
             ? {
-                metadata: data.params.metadata,
+                metadata: prepMetadataObj(data.params.metadata),
                 elements: { ...prepElObj(elements), ...data.params.elements },
                 structure: upgradeStructure(data.params.structure),
                 replacements: data.params.replacements ? [...data.params.replacements] : [],
               }
             : {
-                metadata: data.epub.metadata,
-                elements: prepElObj(elements),
+                metadata: prepMetadataObj(data.epub.metadata),
+                elements: { ...prepElObj(elements), ...mlpClasses },
                 structure: prepStructure(data.epub.chapters),
                 replacements: [],
               },

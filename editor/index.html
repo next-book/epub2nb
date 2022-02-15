@@ -182,6 +182,10 @@
 
       <div class="metadata" v-if="tab == 'metadata'">
         <label>
+          Title
+          <input type="text" v-model="params.metadata.title">
+        </label>
+        <label class="small">
           Language<br>
           <select v-model="params.metadata.languageCode">
             <option value="cs">czech</option>
@@ -189,18 +193,13 @@
           </select>
         </label>
 
-        <label>
+        <label class="small">
           Content template<br>
           <select v-model="params.metadata.contentType">
             <option value="prose">prose</option>
             <option value="poetry">poetry</option>
             <option value="drama">drama</option>
           </select>
-        </label>
-
-        <label>
-          Title
-          <input type="text" v-model="params.metadata.title">
         </label>
         <label>
           Subtitle

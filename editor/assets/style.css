@@ -261,8 +261,13 @@ nav ul li.active {
   grid-column: 1 / -1;
 }
 
-.metadata label {
+.metadata > label {
   display: block;
+  grid-column: span 2;
+}
+
+.metadata > label.small {
+  grid-column: span 1;
 }
 
 .metadata .chapters,
