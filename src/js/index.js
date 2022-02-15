@@ -152,6 +152,8 @@ function getReadingOrder(structure) {
 }
 
 function saveChapters(chapterTexts, structure, nbDir, level) {
+  let hungry = null;
+
   structure.forEach((chapter, index) => {
     if (chapter.role === 'remove') {
       return;
@@ -162,11 +164,24 @@ function saveChapters(chapterTexts, structure, nbDir, level) {
       saveSubchapters(chapterTexts, chapter, nbDir, level);
     } else if (chapter.isSection) {
       saveSubchapters(chapterTexts, chapter, nbDir, level);
+    } else if (chapter.hungry) {
+      fs.writeFileSync(path.join(nbDir, chapter.filename), chapterTexts[chapter.filename]);
+      hungry = {
+        filename: path.join(nbDir, chapter.filename),
+        text: chapterTexts[chapter.filename],
+      };
+    } else if (chapter.devoured) {
+      hungry.text += '\n\n' + removeFrontMatter(chapterTexts[chapter.filename]);
+      fs.writeFileSync(hungry.filename, hungry.text);
     } else {
       fs.writeFileSync(path.join(nbDir, chapter.filename), chapterTexts[chapter.filename]);
       saveSubchapters(chapterTexts, chapter, nbDir, level);
     }
   });
+}
+
+function removeFrontMatter(mdContent) {
+  return mdContent.replace(/^[\s\S]+?\n---\n/, '');
 }
 
 function prepColophon(colophon) {
