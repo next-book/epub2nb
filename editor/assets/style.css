@@ -7,6 +7,28 @@
   font-size: 14px;
 }
 
+#app {
+  display: none;
+}
+
+@keyframes showInfo {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+#loading .info {
+  animation: showInfo 15s;
+}
+
 textarea,
 input[type='text'] {
   font-size: 1rem;

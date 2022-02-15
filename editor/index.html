@@ -30,6 +30,12 @@
     </div>
   </script>
 
+  <div id="loading">
+    <p>Loading…</p>
+
+    <p class="info">Hmm, there might be some problem. You may try reloading the page. If it doesn’t help, check the publishing process in Github Actions log.</p>
+  </div>
+
   <main>
     <div id="app">
       <p style="float: right" v-if="epub.generatedAt">generated {{ generatedAgo }} m ago</p>

@@ -311,6 +311,8 @@ fetch('./params.json')
   .then(response => response.json())
   .then(data => {
     Vue.prototype.epubChapters = (data.epub && data.epub.chapters) || [];
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('loading').style.display = 'none';
 
     var app = new Vue({
       el: '#app',
