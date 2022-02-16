@@ -1,6 +1,6 @@
 {
   "name": "@next-book/epub2nb",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "description": "Convert EPUB to next-book content files.",
   "main": "./src/js/app.js",
   "bin": {
