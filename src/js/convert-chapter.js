@@ -178,7 +178,7 @@ const convertChapter = (chapter, params, hiddenTitles, resources) => {
   const withFootnotes = replaceFootnotes(md);
 
   if (hiddenTitles.includes(chapter.out)) meta.hiddenTitle = true;
-  const frontMatter = yaml.dump({ ...meta, contentType: params.params.contentType || 'prose' });
+  const frontMatter = yaml.dump({ ...meta, contentType: params?.params?.contentType || 'prose' });
 
   // replace resource uris
   const withResources = updateResourceLinksByFilename(withFootnotes, resources);
