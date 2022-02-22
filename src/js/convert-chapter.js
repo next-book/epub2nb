@@ -184,7 +184,7 @@ const convertChapter = (chapter, params, hiddenTitles, resources) => {
   const withResources = updateResourceLinksByFilename(withFootnotes, resources);
 
   // apply find & replace filters
-  const rs = params.params.replacements;
+  const rs = params?.params?.replacements;
   const filtered = rs && rs.length > 0 ? applyFilters(withResources, rs) : withResources;
 
   return `---\n${frontMatter.trim()}\n---\n\n${filtered}\n`;
