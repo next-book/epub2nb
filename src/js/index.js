@@ -55,20 +55,23 @@ const convertBook = (dir, github) => {
 
     copyEditorFiles(dir);
 
-    const bookFileText = createBookFile(params.params, chapterTexts);
+    const metadata = params?.params?.metadata ? params.params.metadata : params.epub.metadata;
+    const structure = params?.params?.structure ? params.params.structure : params.epub.structure;
+
+    const bookFileText = createBookFile(metadata, structure, chapterTexts);
     fs.writeFileSync(path.join(nbDir, '_book.md'), bookFileText);
   });
 };
 
-function createBookFile(params, chapterTexts) {
+function createBookFile(metadata, structure, chapterTexts) {
   const frontMatter = yaml.dump({
     outputs: 'meta',
     slug: 'book',
     contentType: 'prose',
-    languageCode: params && params.metadata ? params.metadata.languageCode : 'en',
-    meta: params && params.metadata,
-    readingOrder: getReadingOrder(params ? params.structure : [], 0),
-    tocBase: params && params.structure ? assembleTocBase(params.structure) : null,
+    languageCode: metadata?.languageCode || 'en',
+    meta: metadata,
+    readingOrder: getReadingOrder(structure || [], 0),
+    tocBase: structure ? assembleTocBase(structure) : null,
     static: ['style', 'scripts', 'title', 'fonts', 'resources', 'template-images', 'favicon.png'],
   });
 
