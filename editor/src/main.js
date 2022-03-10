@@ -365,6 +365,8 @@ function loadCss(resources, setter) {
 }
 
 function upgradeStructure(items) {
+  if (!items || items.children) return items;
+
   return items.map(item => {
     const updated = { ...item };
     if (item.listType === 'basic') updated.listType = 'plain';
