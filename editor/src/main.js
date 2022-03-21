@@ -4,7 +4,8 @@ import { toCSS, toJSON } from 'cssjson';
 import { html_beautify } from 'js-beautify';
 
 import AutoComplete from './autocomplete';
-import mlpClasses from './mlp-classes';
+
+const defaultClasses = require('./../../default-classes.json');
 
 Vue.use(VueNestable);
 Vue.component('autocomplete', AutoComplete);
@@ -333,27 +334,6 @@ function prepMetadataObj(metadata) {
   };
 }
 
-function prepStructure(chapters) {
-  return [
-    {
-      isSection: true,
-      id: 'section-1',
-      children: chapters.map((chapter, index) => ({
-        filename: chapter.filename,
-        xhtml: chapter.xhtml,
-        title: chapter.title,
-        id: index,
-        role: 'chapter',
-        listType: 'plain',
-        inToc: true,
-        hungry: false,
-        devoured: false,
-        hiddenTitle: false,
-      })),
-    },
-  ];
-}
-
 function loadCss(resources, setter) {
   const url = resources.find(res => res.type === 'text/css').href;
 
@@ -396,20 +376,12 @@ fetch('./params.json')
         tab: 'metadata',
         elements,
         extractionComplete: data.extractionComplete || false,
-        params:
-          data.params && Object.keys(data.params).length
-            ? {
-                metadata: prepMetadataObj(data.params.metadata),
-                elements: { ...prepElObj(elements), ...data.params.elements },
-                structure: upgradeStructure(data.params.structure),
-                replacements: data.params.replacements ? [...data.params.replacements] : [],
-              }
-            : {
-                metadata: prepMetadataObj(data.epub.metadata),
-                elements: { ...prepElObj(elements), ...mlpClasses },
-                structure: prepStructure(data.epub.chapters),
-                replacements: [],
-              },
+        params: {
+          metadata: prepMetadataObj(data.params.metadata),
+          elements: { ...prepElObj(elements), ...data.params.elements },
+          structure: upgradeStructure(data.params.structure),
+          replacements: data.params.replacements ? [...data.params.replacements] : [],
+        },
         epub: data.epub,
         extractionComplete: data.extractionComplete,
         css: '',
@@ -508,7 +480,9 @@ fetch('./params.json')
               (filename === true || item.filename === filename)
                 ? this.suggestedSubtitles[item.filename]
                 : item.subtitle,
-            children: this.applySuggestion(item.children, field, filename),
+            children: item.children
+              ? this.applySuggestion(item.children, field, filename)
+              : item.children,
           }));
         },
         addSection: function () {
@@ -548,10 +522,19 @@ fetch('./params.json')
         clearClasses: function () {
           this.params.elements = prepElObj(elements);
         },
+        buildElements: function (classes) {
+          return Object.entries(classes).reduce((acc, entry) => {
+            const [key, value] = entry;
+            acc[key] = value.join('\n');
+            return acc;
+          }, {});
+        },
         addMlpClasses: function () {
+          const defaultElements = this.buildElements(defaultClasses);
+
           this.params.elements = Object.entries(this.params.elements).reduce(
             (acc, [key, value]) => {
-              acc[key] = [value, mlpClasses[key]]
+              acc[key] = [value, defaultElements[key]]
                 .join('\n')
                 .trim()
                 .split(/\s/g)

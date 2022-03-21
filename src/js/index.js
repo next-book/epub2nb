@@ -13,6 +13,17 @@ const epub2readium = require('./epub2readium');
 
 const PKG_DIR = path.join(__dirname, '../../');
 
+const buildElements = classes =>
+  Object.entries(classes).reduce((acc, entry) => {
+    const [key, value] = entry;
+    acc[key] = value.join('\n');
+    return acc;
+  }, {});
+
+const defaultElements = buildElements(
+  JSON.parse(fs.readFileSync(path.join(PKG_DIR, 'default-classes.json'), 'utf8'))
+);
+
 const colophon = [];
 
 const convertBook = (dir, github) => {
@@ -27,8 +38,9 @@ const convertBook = (dir, github) => {
   epub2readium(epub, readiumDir, () => {
     const manifest = loadManifest(readiumDir);
     const chapters = loadChapters(readiumDir, manifest);
-    const params = loadParams(dir);
+    const paramsOrig = loadParams(dir);
     const resources = [];
+    const params = compileParams(paramsOrig, manifest, chapters, github);
 
     manifest.resources.forEach(res => {
       if (res.type.match(/image/)) {
@@ -49,16 +61,14 @@ const convertBook = (dir, github) => {
 
     saveChapters(chapterTexts, params.params ? params.params.structure : [], nbDir, 0);
     fs.writeFileSync(path.join(nbDir, 'colophon.md'), prepColophon(colophon));
-
-    const paramsData = compileParams(params, manifest, chapters, github);
-    fs.writeFileSync(getParamsPath(dir), paramsData);
-
+    fs.writeFileSync(getParamsPath(dir), JSON.stringify(params, null, 2));
     copyEditorFiles(dir);
 
-    const metadata = params?.params?.metadata ? params.params.metadata : params.epub.metadata;
-    const structure = params?.params?.structure ? params.params.structure : params.epub.structure;
-
-    const bookFileText = createBookFile(metadata, structure, chapterTexts);
+    const bookFileText = createBookFile(
+      params.params.metadata,
+      params.params.structure,
+      chapterTexts
+    );
     fs.writeFileSync(path.join(nbDir, '_book.md'), bookFileText);
   });
 };
@@ -205,6 +215,10 @@ function saveSubchapters(chapterTexts, structure, nbDir, level) {
 function copyEditorFiles(dir) {
   fs.copyFileSync(path.join(PKG_DIR, 'editor/index.html'), path.join(dir, 'index.html'));
   fsExtra.copySync(path.join(PKG_DIR, 'editor/assets'), path.join(dir, 'assets'));
+  fs.copyFileSync(
+    path.join(PKG_DIR, 'default-classes.json'),
+    path.join(dir, 'assets/default-classes.json')
+  );
 }
 
 function getParamsPath(dir) {
@@ -231,40 +245,72 @@ function getGhData(github) {
 
 function compileParams(params, manifest, chapters, github) {
   const allClasses = compileClasses(chapters);
-  const elements = (params && params.params && params.params.elements) || null;
+  const elements = (params && params.params && params.params.elements) || defaultElements;
   const selectors = elements ? createSelectors(elements, allClasses) : [];
 
-  return JSON.stringify(
-    {
-      params: params.params,
-      epub: {
-        metadata: {
-          title: manifest.metadata.title,
-          identifier: manifest.metadata.identifier,
-          author: manifest.metadata.author,
-          publisher: manifest.metadata.publisher,
-          modified: manifest.metadata.modified,
-          publisherShort: manifest.metadata.publisherShort,
-          edition: manifest.metadata.edition,
-          languageCode: manifest.metadata.languageCode,
-          yearPublished: manifest.metadata.yearPublished,
-        },
-        chapters: chapters.map(chapter => ({
-          titleSuggest: selectors.title !== null ? getTitle(chapter.dom, selectors.title) : '',
-          subtitleSuggest:
-            selectors.subtitle !== null ? getTitle(chapter.dom, selectors.subtitle) : '',
-          filename: chapter.out,
-          xhtml: path.parse(chapter.src).name + path.parse(chapter.src).ext,
-        })),
-        resources: manifest.resources,
-        classes: allClasses,
-        github: getGhData(github),
-        generatedAt: Date.now(),
-      },
+  const epub = {
+    metadata: {
+      title: manifest.metadata.title,
+      identifier: manifest.metadata.identifier,
+      author: manifest.metadata.author,
+      publisher: manifest.metadata.publisher,
+      modified: manifest.metadata.modified,
+      publisherShort: manifest.metadata.publisherShort,
+      edition: manifest.metadata.edition,
+      languageCode: manifest.metadata.languageCode,
+      yearPublished: manifest.metadata.yearPublished,
     },
-    null,
-    2
-  );
+    chapters: chapters.map(chapter => ({
+      titleSuggest: selectors.title !== null ? getTitle(chapter.dom, selectors.title) : '',
+      subtitleSuggest: selectors.subtitle !== null ? getTitle(chapter.dom, selectors.subtitle) : '',
+      filename: chapter.out,
+      xhtml: path.parse(chapter.src).name + path.parse(chapter.src).ext,
+    })),
+    resources: manifest.resources,
+    classes: allClasses,
+    github: getGhData(github),
+    generatedAt: Date.now(),
+  };
+
+  return {
+    params: {
+      metadata: params.params?.metadata || {
+        title: manifest.metadata.title,
+        identifier: manifest.metadata.identifier,
+        author: manifest.metadata.author,
+        publisher: manifest.metadata.publisher,
+        modified: manifest.metadata.modified,
+        publisherShort: manifest.metadata.publisherShort,
+        edition: manifest.metadata.edition,
+        languageCode: manifest.metadata.languageCode,
+        yearPublished: manifest.metadata.yearPublished,
+      },
+      elements: params.params?.elements || defaultElements,
+      structure: params.params?.structure || prepStructure(epub.chapters),
+    },
+    epub,
+  };
+}
+
+function prepStructure(chapters) {
+  return [
+    {
+      isSection: true,
+      id: 'section-1',
+      children: chapters.map((chapter, index) => ({
+        filename: chapter.filename,
+        xhtml: chapter.xhtml,
+        title: chapter.title,
+        id: index,
+        role: 'chapter',
+        listType: 'plain',
+        inToc: true,
+        hungry: false,
+        devoured: false,
+        hiddenTitle: false,
+      })),
+    },
+  ];
 }
 
 function prepDirs(dir) {

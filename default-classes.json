@@ -1,0 +1,39 @@
+{
+  "title": ["MLP_uroven1_zvlastni_pripady", "MLP_uroven1_cast", "MLP-uroven2-kapitola"],
+  "subtitle": [],
+  "h2": ["MLP-uroven3-nadpis"],
+  "h3": [],
+  "h4": [],
+  "hr": [],
+  "hrBefore": [],
+  "hrAfter": [],
+  "br": [],
+  "brBefore": [
+    "MLP_text_bez1radku",
+    "MLP_text_bez1radku_-0-12-",
+    "MLP_text_bez1radku_-12-0",
+    "MLP-text-bez1radku",
+    "MLP-text-bez1radku--0-12",
+    "MLP-text-bez1radku--12-0",
+    "MLP_dopis_bez1radku"
+  ],
+  "brAfter": [],
+  "blockquote": ["MLP_verse_-0-12-", "MLP_verse_-12-12-", "MLP-dopis-bez1radku--I"],
+  "figure": ["MLP_obrazky", "MLP-obrazky"],
+  "em": [
+    "MLP_znak_kurziva_11b",
+    "MLP_dopis_podpis_-I-",
+    "MLP_titulka_prekladatel",
+    "MLP-dopis-bez1radku--I",
+    "MLP-text--I",
+    "MLP-text-uprostred--I",
+    "MLP-verse",
+    "MLP-verse.+",
+    "MLP-znak-kurziva-11b",
+    "MLP-znak-kurziva-9b",
+    "MLP-znak-tucna-kurziva-11b"
+  ],
+  "strong": ["MLP-tiraz-autor-a-nazev", "MLP-licence-paragraf"],
+  "remove": [],
+  "ignore": []
+}

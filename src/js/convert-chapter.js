@@ -1,7 +1,21 @@
+const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 const cheerio = require('cheerio');
 const Turndown = require('turndown');
+
+const PKG_DIR = path.join(__dirname, '../../');
+
+const buildElements = classes =>
+  Object.entries(classes).reduce((acc, entry) => {
+    const [key, value] = entry;
+    acc[key] = value.join('\n');
+    return acc;
+  }, {});
+
+const defaultElements = buildElements(
+  JSON.parse(fs.readFileSync(path.join(PKG_DIR, 'default-classes.json'), 'utf8'))
+);
 
 const turndownService = new Turndown({
   headingStyle: 'atx',
@@ -170,7 +184,7 @@ const convertChapter = (chapter, params, hiddenTitles, resources) => {
   const { text, meta } =
     params.params && params.params.elements
       ? replaceElements(chapter.text, params.params.elements, params.epub.classes)
-      : { text: chapter.text, meta: {} };
+      : replaceElements(chapter.text, defaultElements, []);
 
   // turn to md
   const md = turndownService.turndown(text);
