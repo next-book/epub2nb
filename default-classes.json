@@ -1,5 +1,5 @@
 {
-  "title": ["MLP_uroven1_zvlastni_pripady", "MLP_uroven1_cast", "MLP-uroven2-kapitola"],
+  "title": ["MLP_uroven1_zvlastni_pripady", "MLP_uroven1_cast", "MLP-uroven2-kapitola", "MLP_uroven2_kapitola"],
   "subtitle": [],
   "h2": ["MLP-uroven3-nadpis"],
   "h3": [],
@@ -33,7 +33,7 @@
     "MLP-znak-kurziva-9b",
     "MLP-znak-tucna-kurziva-11b"
   ],
-  "strong": ["MLP-tiraz-autor-a-nazev", "MLP-licence-paragraf"],
+  "strong": ["MLP-tiraz-autor-a-nazev", "MLP_tiraz_autor_a_nazev", "MLP-licence-paragraf"],
   "remove": [],
   "ignore": []
 }
