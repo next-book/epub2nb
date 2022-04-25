@@ -31,7 +31,8 @@
     "MLP-verse.+",
     "MLP-znak-kurziva-11b",
     "MLP-znak-kurziva-9b",
-    "MLP-znak-tucna-kurziva-11b"
+    "MLP-znak-tucna-kurziva-11b",
+    "MLP_citat"
   ],
   "strong": ["MLP-tiraz-autor-a-nazev", "MLP_tiraz_autor_a_nazev", "MLP-licence-paragraf"],
   "remove": [],
