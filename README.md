@@ -41,7 +41,7 @@ Po chvíli se zobrazí zelený pruh s informací, že kniha byla publikována.
 
 ### Jak omkrnout knihu
 
-Odkazy na exportované knihy jsou nejlépe k nalezení v [seznamu knih](https://books-are-next.github.io). Knihy se ukládají do počítače, aby je bylo možné číst v offline režimu — proto je pro náhled na aktuální knihu potřebné použít anonymní okno (pokud uděláte knize změny, uvidíte nejspíš starší verzi knihy).
+Odkazy na exportované knihy jsou nejlépe k nalezení v [seznamu knih](https://books-are-next.github.io). Knihy se ukládají do počítače, aby je bylo možné číst v offline režimu — proto je pro náhled na aktuální knihu potřeba použít anonymní okno (pokud uděláte knize změny, uvidíte nejspíš starší verzi knihy).
 
 Najdete zde odkazy na
 
@@ -58,6 +58,6 @@ Nejdůležitější funkcionalita konvertoru je následující:
 
 - na úvodní straně „Metadata“ můžete editovat… metadata
 - na stránce „Structure“ můžete upravit strukturu obsahu, vyznačit titulní a předělové stránky apod.
-- na stránce „Export“ pak zkopírujete data, která uložíte do souboru v repozitáři — přímo u textového pole najdete odkaz na příslušný soubor
+- na stránce „Export“ pak zkopírujete data, která uložíte do souboru v repozitáři — přímo u textového pole najdete odkaz na příslušný soubor (data se zkopírují do schránky a můžete smazat obsah souboru a vložit do něj obsah schránky, potvrdíte tlačítkem Commit changes)
 
 Podrobný manuál ke všem funkcím tohoto rozhraní ještě ladíme a bude užitečné na něj mrknout, až zvládneme základy. Prozatím je rozpracovaná verze viditelná na [google docs](https://docs.google.com/document/d/1tInPQbpaxHQo6k-c28HofrV3BUm7rTjjj-BrNQ5jGLo/edit).
