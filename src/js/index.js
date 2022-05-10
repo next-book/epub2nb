@@ -6,6 +6,7 @@ const cheerio = require('cheerio');
 const yaml = require('js-yaml');
 const fm = require('front-matter');
 const slugify = require('slugify');
+const https = require('https');
 
 const analyze = require('./analyze');
 const { convertChapter, getTitle, createSelectors } = require('./convert-chapter');
@@ -143,6 +144,8 @@ function getReadingOrder(structure) {
     return structureLevel.reduce((acc, chapter, index) => {
       if (chapter.role === 'remove' || chapter.role === 'cover' || chapter.devoured) {
         return acc;
+      } else if (chapter.role === 'promo') {
+        acc.push(replaceExt('promo.md'));
       } else if (chapter.role === 'colophon') {
         colophon = 'colophon.html';
         return acc;
@@ -167,11 +170,19 @@ function getReadingOrder(structure) {
 function saveChapters(chapterTexts, structure, nbDir, level) {
   let hungry = null;
 
-  structure.forEach((chapter, index) => {
+  structure.forEach(async (chapter, index) => {
     if (chapter.role === 'remove') {
       return;
     } else if (chapter.role === 'colophon') {
       colophon.push(chapterTexts[chapter.filename]);
+    } else if (chapter.role === 'promo') {
+      const promo = await getPromoData();
+      if (promo !== null) {
+        fs.writeFileSync(
+          path.join(nbDir, 'promo.md'),
+          `---\n${yaml.dump({ title: promo.publisher, promo })}\n---\n`
+        );
+      }
     } else if (chapter.role === 'cover') {
       fs.writeFileSync(path.join(nbDir, '_index.md'), chapterTexts[chapter.filename]);
       saveSubchapters(chapterTexts, chapter, nbDir, level);
@@ -190,6 +201,36 @@ function saveChapters(chapterTexts, structure, nbDir, level) {
       fs.writeFileSync(path.join(nbDir, chapter.filename), chapterTexts[chapter.filename]);
       saveSubchapters(chapterTexts, chapter, nbDir, level);
     }
+  });
+}
+
+async function getPromoData() {
+  const promoBaseUrl = 'https://books-are-next.github.io/mkp-promo/';
+  let json = '';
+
+  return new Promise(resolve => {
+    https
+      .get(path.join(promoBaseUrl, 'promo.json'), function (res) {
+        res.on('data', function (chunk) {
+          json += chunk;
+        });
+        res.on('end', function () {
+          if (res.statusCode === 200) {
+            try {
+              const data = JSON.parse(json);
+              resolve(data);
+            } catch (e) {
+              console.log('Error parsing promo JSON!');
+              resolve(null);
+            }
+          } else {
+            console.log('Status:', res.statusCode);
+          }
+        });
+      })
+      .on('error', function (err) {
+        console.log('Error:', err);
+      });
   });
 }
 

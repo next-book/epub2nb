@@ -98,6 +98,13 @@
                       </span>
                     </label>
 
+                    <label v-if="!item.isSection" title="promo">
+                      <input type="radio" value="promo" v-model="item.role">
+                      <span class="btn">
+                        <span class="material-icons">label</span> <span class="desc">promo</span>
+                      </span>
+                    </label>
+
                     <label v-if="!item.isSection" title="remove">
                       <input type="radio" value="remove" v-model="item.role">
                       <span class="btn">

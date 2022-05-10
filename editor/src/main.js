@@ -160,6 +160,7 @@ Vue.component('icon', {
     <span v-else-if="role == 'chapter'" class="material-icons">subject</span>
     <span v-else-if="role == 'break'" class="material-icons">subtitles</span>
     <span v-else-if="role == 'colophon'" class="material-icons">copyright</span>
+    <span v-else-if="role == 'promo'" class="material-icons">label</span>
     <span v-else-if="role == 'remove'" class="material-icons">close</span>
     `,
   props: ['role'],
