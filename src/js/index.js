@@ -61,7 +61,10 @@ const convertBook = (dir, github) => {
     }, {});
 
     saveChapters(chapterTexts, params.params ? params.params.structure : [], nbDir, 0);
-    fs.writeFileSync(path.join(nbDir, 'colophon.md'), prepColophon(colophon));
+    fs.writeFileSync(
+      path.join(nbDir, 'colophon.md'),
+      prepColophon(colophon, params?.params?.metadata?.isbn)
+    );
     fs.writeFileSync(getParamsPath(dir), JSON.stringify(params, null, 2));
     copyEditorFiles(dir);
 
@@ -245,7 +248,83 @@ function prepColophon(colophon) {
       data.attributes.title ? `## ${data.attributes.title}\n\n${data.body}` : `***\n\n${data.body}`
     )
     .join('\n\n');
-  return `---\ntitle: Tiráž\n---\n\n${text}`;
+
+  const dumbColophone = dumbifyColophon(text);
+
+  return `---\ntitle: Tiráž\n---\n\n${dumbColophone}`;
+}
+
+function dumbifyColophon(text, isbn) {
+  const categories = {
+    main: [],
+    origin: [],
+    license: [],
+    dedication: [],
+    bib: [],
+    quote: [],
+    other: [],
+  };
+
+  `\n${text}\n`
+    .replace(/\n\* \* \*\n/g, '\n***\n')
+    .split('\n***\n')
+    .map(part => part.trim().replace(/[\n\r]{2,}/g, '\n\n'))
+    .filter(part => part)
+    .forEach(part => {
+      [
+        [/Edice|Redakce|Překlad|Vydala/, 'main'],
+        [/^Znění/, 'origin'],
+        [/není vázán|je vázán|jsou vázány|Vydání \(obálka/, 'license'],
+        [/Citační záznam/, 'bib'],
+        [/věnuji|věnován/, 'dedication'],
+        [/^_/, 'quote'],
+        [/.+/, 'other'],
+      ].some(pair => {
+        const [regex, c] = pair;
+
+        if (regex.test(part)) {
+          if (c === 'main') {
+            const filtered = part
+              .replace(/(\n\s+)+/g, '\n')
+              .split(/\n/)
+              .filter(line => !/\d\.\s+(opravené\s+)?vydání|^Verze|ISBN/.test(line));
+
+            if (isbn) filtered.push(`ISBN ${isbn} (webová kniha)`);
+
+            const d = new Date();
+            filtered.push(`1. vydání z ${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}.`);
+
+            categories[c].push(filtered.join('  \n'));
+          } else if (c === 'bib') {
+            const d = new Date();
+            const filtered = part
+              .replace(
+                /\[aktuální datum citace[^\]]+\]/,
+                `[cit. ${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}]`
+              )
+              .replace(/V\sMKP\s\d+\.\svyd\./g, '')
+              .replace(/Dostupné z[\s\S]+$/g, 'Dostupné z: <next-book-url>')
+              .split(/\. /);
+
+            categories[c].push(filtered.join('. '));
+          } else
+            categories[c].push(
+              part
+                .split('\n')
+                .filter(line => !/^Verze/.test(line))
+                .join('\n')
+            );
+
+          return true;
+        }
+      });
+    });
+
+  const sep = '\n\n***\n\n';
+  const j = catName => (categories[catName].length ? categories[catName].join('\n\n') : null);
+  return [j('main'), j('origin'), j('license'), j('dedication'), j('bib'), j('quote')]
+    .filter(x => x)
+    .join(sep);
 }
 
 function saveSubchapters(chapterTexts, structure, nbDir, level) {
