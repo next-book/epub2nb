@@ -114,7 +114,10 @@ const wrapElContent = ($, classes, tagName) => {
   $(classes).wrapInner(`<${tagName}></${tagName}>`);
 };
 
-const getTitle = ($, classes) => $(classes).first().text();
+const getTitle = ($, classes) => {
+  const text = $(classes).first().text();
+  return text.replace(/\n|\r/g, ' ').replace(/\./g, '\\.');
+};
 
 const removeTitle = ($, classes) => $(classes).first().remove();
 
