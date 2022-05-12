@@ -36,7 +36,7 @@ const convertBook = (dir, github) => {
     return;
   }
 
-  epub2readium(epub, readiumDir, () => {
+  epub2readium(epub, readiumDir, async () => {
     const manifest = loadManifest(readiumDir);
     const chapters = loadChapters(readiumDir, manifest);
     const paramsOrig = loadParams(dir);
@@ -68,11 +68,14 @@ const convertBook = (dir, github) => {
     fs.writeFileSync(getParamsPath(dir), JSON.stringify(params, null, 2));
     copyEditorFiles(dir);
 
-    const bookFileText = createBookFile(
-      params.params.metadata,
-      params.params.structure,
-      chapterTexts
-    );
+    const { structure } = params?.params;
+    if (structure && !promoExists(structure)) {
+      const promo = await getPromoData();
+      structure.unshift({ role: 'promo' });
+      if (promo !== null) fs.writeFileSync(path.join(nbDir, 'promo.md'), promo);
+    }
+
+    const bookFileText = createBookFile(params.params.metadata, structure, chapterTexts);
     fs.writeFileSync(path.join(nbDir, '_book.md'), bookFileText);
   });
 };
@@ -101,6 +104,16 @@ function getHiddenTitleFilenames(structure) {
       acc = [...acc, ...getHiddenTitleFilenames(chapter.children)];
     return acc;
   }, []);
+}
+
+function promoExists(structure) {
+  return structure.some(chapter => {
+    if (chapter.role === 'promo') return true;
+
+    if (chapter.children?.length) return promoExists(chapter.children);
+
+    return false;
+  });
 }
 
 function assembleTocBase(structure) {
@@ -180,12 +193,7 @@ function saveChapters(chapterTexts, structure, nbDir, level) {
       colophon.push(chapterTexts[chapter.filename]);
     } else if (chapter.role === 'promo') {
       const promo = await getPromoData();
-      if (promo !== null) {
-        fs.writeFileSync(
-          path.join(nbDir, 'promo.md'),
-          `---\n${yaml.dump({ title: promo.publisher, promo })}\n---\n`
-        );
-      }
+      if (promo !== null) fs.writeFileSync(path.join(nbDir, 'promo.md'), promo);
     } else if (chapter.role === 'cover') {
       fs.writeFileSync(path.join(nbDir, '_index.md'), chapterTexts[chapter.filename]);
       saveSubchapters(chapterTexts, chapter, nbDir, level);
@@ -220,8 +228,8 @@ async function getPromoData() {
         res.on('end', function () {
           if (res.statusCode === 200) {
             try {
-              const data = JSON.parse(json);
-              resolve(data);
+              const promo = JSON.parse(json);
+              resolve(promo ? `---\n${yaml.dump({ title: promo.publisher, promo })}\n---\n` : null);
             } catch (e) {
               console.log('Error parsing promo JSON!');
               resolve(null);
