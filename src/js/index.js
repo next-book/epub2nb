@@ -295,7 +295,7 @@ function dumbifyColophon(text, isbn) {
             const filtered = part
               .replace(/(\n\s+)+/g, '\n')
               .split(/\n/)
-              .filter(line => !/\d\.\s+(opravené\s+)?vydání|^Verze|ISBN/.test(line));
+              .filter(line => !/\d\.\s+(opravené\s+)?vydání|^Verze|ISBN|na obálce/.test(line));
 
             if (isbn) filtered.push(`ISBN ${isbn} (webová kniha)`);
 
