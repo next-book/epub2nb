@@ -330,7 +330,6 @@ function prepElObj(elements) {
 function prepMetadataObj(metadata) {
   return {
     languageCode: 'cs',
-    contentType: 'prose',
     ...metadata,
   };
 }
