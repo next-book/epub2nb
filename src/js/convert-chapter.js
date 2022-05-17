@@ -33,12 +33,12 @@ const replaceElements = (text, elements, allClasses) => {
 
   if (classes.title) {
     meta.title = getTitle($, classes.title);
-    removeTitle($, classes.title);
+    removeFirst($, classes.title);
   }
 
   if (classes.subtitle) {
     meta.subtitle = getTitle($, classes.subtitle);
-    removeTitle($, classes.subtitle);
+    removeFirst($, classes.subtitle);
   }
 
   ['h2', 'h3', 'h4', 'hr', 'br', 'blockquote', 'figure'].forEach(el => {
@@ -119,7 +119,7 @@ const getTitle = ($, classes) => {
   return text.replace(/\n|\r/g, ' ').replace(/\./g, '\\.');
 };
 
-const removeTitle = ($, classes) => $(classes).first().remove();
+const removeFirst = ($, classes) => $(classes).first().remove();
 
 const removeElements = ($, classes) => $(classes).remove();
 
