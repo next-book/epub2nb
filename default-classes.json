@@ -20,8 +20,18 @@
   "hrBefore": [],
   "hrAfter": [],
   "br": [],
-  "brBefore": [".+12.0", "e.bookodsazeniodstavce.*pred.*"],
-  "brAfter": [".+0.12", "e.bookversebezpredsazeni.*za.*"],
+  "brBefore": [
+    ".+12.0",
+    ".+12.12",
+    "e.bookversebezpredsazeni.*pred.*",
+    "e.bookodsazeniodstavce.*pred.*"
+  ],
+  "brAfter": [
+    ".+0.12",
+    ".+12.12",
+    "e.bookversebezpredsazeni.*za.*",
+    "e.bookodsazeniodstavce.*za.*"
+  ],
   "blockquote": [
     "MLP.DENIK",
     "MLP.dopis.*",
