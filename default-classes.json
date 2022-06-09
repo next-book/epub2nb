@@ -3,13 +3,28 @@
     "MLP.uroven1.*",
     "MLP.uroven2.kapitola",
     "MLP.uroven2.basne",
-    "e.booknadpis.*",
+    "MLP.uroven2.kapitola.dopis",
+    "MLP.uroven2.kapitola.upraven",
+    "e.booknadpis2",
+    "e.booknadpis2bezodstrnkovn",
+    "e.booknadpis2probasne",
+    "e.bookobsah",
     "heading.id.2",
-    "mlpuroven1cast",
-    "mlpuroven2kapitola"
+    "mlpuroven1.*",
+    "mlpuroven2.*",
+    "MLP.UROVEN2.BASNE.II",
+    "MLP.UROVEN2.KAPITOLA",
+    "MLP.UROVEN2.PARAL",
+    "MLP.uroven1.PARAL"
   ],
   "subtitle": [],
-  "h2": ["MLP.uroven3.nadpis", "MLP.UROVEN3.NADPIS.DRAMA"],
+  "h2": [
+    "MLP.uroven3.nadpis.*",
+    "MLP.UROVEN3.*",
+    "e.booknadpis3bezodstrankovani",
+    "e.booknadpis3probasne",
+    "mlpuroven3.*"
+  ],
   "h3": [
     "MLP.uroven4.nadpis",
     "e.booknadpis3bezodstrankovani",
