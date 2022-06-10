@@ -183,6 +183,17 @@ const applyFilters = (text, filters) => {
   return result;
 };
 
+const br2Section = md => {
+  console.log({ md: md.trim() });
+
+  return md.trim().length === 0
+    ? ''
+    : `<section>\n\n${md
+        .trim()
+        .replace(/\n\n  \n\n[\n ]+/, '\n\n  \n\n')
+        .replace(/\n\n  \n\n/g, '\n\n</section>\n\n<section>\n\n')}\n\n</section>`;
+};
+
 const convertChapter = (chapter, params, hiddenTitles, resources) => {
   const { text, meta } =
     params.params && params.params.elements
@@ -190,7 +201,7 @@ const convertChapter = (chapter, params, hiddenTitles, resources) => {
       : replaceElements(chapter.text, defaultElements, []);
 
   // turn to md
-  const md = turndownService.turndown(text);
+  const md = br2Section(turndownService.turndown(text));
 
   const withFootnotes = replaceFootnotes(md);
 
