@@ -38,12 +38,16 @@
   "brBefore": [
     ".+12.0",
     ".+12.12",
+    ".+12.0.",
+    ".+12.12.",
     "e.bookversebezpredsazeni.*pred.*",
     "e.bookodsazeniodstavce.*pred.*"
   ],
   "brAfter": [
     ".+0.12",
     ".+12.12",
+    ".+0.12.",
+    ".+12.12.",
     "e.bookversebezpredsazeni.*za.*",
     "e.bookodsazeniodstavce.*za.*"
   ],
@@ -60,7 +64,9 @@
   "em": [
     ".*kurziva.*",
     ".*-I-.*",
-    ".*--I",
+    ".*-I",
+    ".*_I_.*",
+    ".*_I",
     "MLP.venovani",
     "MLP.verse.*",
     "MLP.titulka.prekladatel",
@@ -78,6 +84,8 @@
     ".*tucna.*",
     ".*-B-",
     ".*-B",
+    ".*_B_",
+    ".*_B",
     "MLP.prima.rec",
     "MLP.prima.rec.bez.mezery",
     "e.booktirazautoradilo",
