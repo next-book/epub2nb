@@ -414,13 +414,29 @@ function compileParams(params, manifest, chapters, github) {
         yearPublished: manifest.metadata.yearPublished,
       },
       elements: params.params?.elements || defaultElements,
-      structure: params.params?.structure || prepStructure(epub.chapters),
+      structure: prepStructure(params.params?.structure, chapters),
     },
     epub,
   };
 }
 
-function prepStructure(chapters) {
+function prepStructure(structure, chapters) {
+  return structure ? addRootSection(structure) : baseStructureOnReadingOrder(chapters);
+}
+
+function addRootSection(structure) {
+  return structure[0].isSection !== true
+    ? [
+        {
+          isSection: true,
+          id: 'section-1',
+          children: structure,
+        },
+      ]
+    : [...structure];
+}
+
+function baseStructureOnReadingOrder(chapters) {
   return [
     {
       isSection: true,
