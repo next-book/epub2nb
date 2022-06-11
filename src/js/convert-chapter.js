@@ -217,6 +217,8 @@ const tooManyNbsps = md => md.replace(/ {12,}/g, ' '.repeat(12));
 
 const clearNewlines = md => md.replace(/\n\n+/g, '\n\n').trim();
 
+const nbsp2Br = html => html.replace(/<p>&nbsp;<\/p>/g, '<br>');
+
 const convertChapter = (chapter, params, hiddenTitles, resources) => {
   const { text, meta } =
     params.params && params.params.elements
@@ -224,7 +226,7 @@ const convertChapter = (chapter, params, hiddenTitles, resources) => {
       : replaceElements(chapter.text, defaultElements, []);
 
   // turn to md
-  const md = clearNewlines(tooManyNbsps(br2Section(turndownService.turndown(text))));
+  const md = clearNewlines(tooManyNbsps(br2Section(turndownService.turndown(nbsp2Br(text)))));
 
   const withFootnotes = replaceFootnotes(md);
 
