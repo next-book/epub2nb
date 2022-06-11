@@ -21,6 +21,16 @@ const turndownService = new Turndown({
   headingStyle: 'atx',
 });
 
+turndownService
+  .addRule('centered', {
+    filter: ['centered'],
+    replacement: content => '\n\n<div class="centered">\n\n' + content + '\n\n</div>\n\n',
+  })
+  .addRule('verse', {
+    filter: ['verse'],
+    replacement: content => '\n\n<div class="verse">\n\n' + content + '\n\n</div>\n\n',
+  });
+
 const replaceElements = (text, elements, allClasses) => {
   const classes = createSelectors(elements, allClasses);
 
@@ -52,6 +62,14 @@ const replaceElements = (text, elements, allClasses) => {
       wrapElContent($, classes[el], el);
     }
   });
+
+  if (classes.centered) {
+    wrapEl($, classes.centered, 'centered');
+  }
+
+  if (classes.verse) {
+    wrapEl($, classes.centered, 'verse');
+  }
 
   if (classes.brBefore) {
     insertElBefore($, classes.brBefore, 'br');
@@ -112,6 +130,10 @@ const insertElAfter = ($, classes, tagName) => {
 
 const wrapElContent = ($, classes, tagName) => {
   $(classes).wrapInner(`<${tagName}></${tagName}>`);
+};
+
+const wrapEl = ($, classes, tagName) => {
+  $(classes).wrap(`<${tagName}></${tagName}>`);
 };
 
 const getTitle = ($, classes) => {
@@ -193,6 +215,8 @@ const br2Section = md =>
 
 const tooManyNbsps = md => md.replace(/ {12,}/g, ' '.repeat(12));
 
+const clearNewlines = md => md.replace(/\n\n+/g, '\n\n').trim();
+
 const convertChapter = (chapter, params, hiddenTitles, resources) => {
   const { text, meta } =
     params.params && params.params.elements
@@ -200,7 +224,7 @@ const convertChapter = (chapter, params, hiddenTitles, resources) => {
       : replaceElements(chapter.text, defaultElements, []);
 
   // turn to md
-  const md = tooManyNbsps(br2Section(turndownService.turndown(text))).trim();
+  const md = clearNewlines(tooManyNbsps(br2Section(turndownService.turndown(text))));
 
   const withFootnotes = replaceFootnotes(md);
 
