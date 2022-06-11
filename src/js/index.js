@@ -206,8 +206,8 @@ function saveChapters(chapterTexts, structure, nbDir, level) {
         text: chapterTexts[chapter.filename],
       };
     } else if (chapter.devoured) {
-      hungry.text += '\n\n' + removeFrontMatter(chapterTexts[chapter.filename]);
-      fs.writeFileSync(hungry.filename, hungry.text.trim());
+      hungry.text += '\n\n' + removeFrontMatter(chapterTexts[chapter.filename]).trim();
+      fs.writeFileSync(hungry.filename, hungry.text + '\n');
     } else {
       fs.writeFileSync(path.join(nbDir, chapter.filename), chapterTexts[chapter.filename]);
       saveSubchapters(chapterTexts, chapter, nbDir, level);

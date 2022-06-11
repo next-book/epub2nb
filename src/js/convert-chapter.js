@@ -183,16 +183,15 @@ const applyFilters = (text, filters) => {
   return result;
 };
 
-const br2Section = md => {
-  console.log({ md: md.trim() });
-
-  return md.trim().length === 0
+const br2Section = md =>
+  md.trim().length === 0
     ? ''
     : `<section>\n\n${md
         .trim()
         .replace(/\n\n  \n\n[\n ]+/, '\n\n  \n\n')
         .replace(/\n\n  \n\n/g, '\n\n</section>\n\n<section>\n\n')}\n\n</section>`;
-};
+
+const tooManyNbsps = md => md.replace(/ {12,}/g, ' '.repeat(12));
 
 const convertChapter = (chapter, params, hiddenTitles, resources) => {
   const { text, meta } =
@@ -201,7 +200,7 @@ const convertChapter = (chapter, params, hiddenTitles, resources) => {
       : replaceElements(chapter.text, defaultElements, []);
 
   // turn to md
-  const md = br2Section(turndownService.turndown(text));
+  const md = tooManyNbsps(br2Section(turndownService.turndown(text))).trim();
 
   const withFootnotes = replaceFootnotes(md);
 
