@@ -274,6 +274,7 @@ function dumbifyColophon(text, isbn) {
   };
 
   `\n${text}\n`
+    .replace(/<\/?section>/g, '')
     .replace(/\n\* \* \*\n/g, '\n***\n')
     .split('\n***\n')
     .map(part => part.trim().replace(/[\n\r]{2,}/g, '\n\n'))
