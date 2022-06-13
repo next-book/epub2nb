@@ -263,6 +263,10 @@ function prepColophon(colophon) {
 }
 
 function dumbifyColophon(text, isbn) {
+  const tacr =
+    'Vydání webové knihy podpořila [Technologická agentura ČR](https://www.tacr.cz/) v projektu ' +
+    '[Redesign knihovních služeb 2020: webové knihy](https://starfos.tacr.cz/cs/project/TL04000391).';
+
   const categories = {
     main: [],
     origin: [],
@@ -301,7 +305,11 @@ function dumbifyColophon(text, isbn) {
             if (isbn) filtered.push(`ISBN ${isbn} (webová kniha)`);
 
             const d = new Date();
-            filtered.push(`1. vydání z ${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}.`);
+            filtered.push(
+              `1\. vydání webové knihy v MKP z ${d.getDate()}. ${
+                d.getMonth() + 1
+              }. ${d.getFullYear()}.`
+            );
 
             categories[c].push(filtered.join('  \n'));
           } else if (c === 'bib') {
@@ -331,7 +339,7 @@ function dumbifyColophon(text, isbn) {
 
   const sep = '\n\n***\n\n';
   const j = catName => (categories[catName].length ? categories[catName].join('\n\n') : null);
-  return [j('main'), j('origin'), j('license'), j('dedication'), j('bib'), j('quote')]
+  return [j('main'), j('origin'), j('license'), j('dedication'), j('bib'), j('quote'), tacr]
     .filter(x => x)
     .join(sep);
 }
