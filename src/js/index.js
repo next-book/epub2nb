@@ -328,7 +328,7 @@ function dumbifyColophon(text, isbn, github) {
               .replace(
                 /Dostupné z[\s\S]+$/,
                 ghInfo?.repo
-                  ? `Dostupné z [${ghInfo.user}.github.io/${ghInfo.repo}](https://${ghInfo.user}.github.io/${ghInfo.repo}).`
+                  ? `Dostupné z <[${ghInfo.user}.github.io/${ghInfo.repo}](https://${ghInfo.user}.github.io/${ghInfo.repo})>.`
                   : ''
               )
               .split(/\. /);
