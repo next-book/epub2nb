@@ -277,6 +277,8 @@ function dumbifyColophon(text, isbn, github) {
     other: [],
   };
 
+  const pubNumberRef = { current: null };
+
   `\n${text}\n`
     .replace(/<\/?section>/g, '')
     .replace(/\n\* \* \*\n/g, '\n***\n')
@@ -310,11 +312,10 @@ function dumbifyColophon(text, isbn, github) {
             if (isbn) filtered.push(`ISBN ${isbn} (webová kniha)`);
 
             const d = new Date();
-            filtered.push(
-              `V MKP ${
-                pubNumber?.[1] ? parseInt(pubNumber[1], 10) + 1 : 1
-              }\. elektronické vydání z ${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}.`
-            );
+            pubNumberRef.current = `V MKP ${
+              pubNumber?.[1] ? parseInt(pubNumber[1], 10) + 1 : 1
+            }\. elektronické vydání z ${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}.`;
+            filtered.push(pubNumberRef.current);
 
             categories[c].push(filtered.join('  \n'));
           } else if (c === 'bib') {
@@ -324,13 +325,14 @@ function dumbifyColophon(text, isbn, github) {
                 /\[aktuální datum citace[^\]]+\]/,
                 `[cit. ${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}]`
               )
-              .replace(/V\sMKP\s(\d+)\.\svyd\./g)
+              .replace(/V\sMKP\s(\d+)\.\svyd\./g, 'pubNumber')
               .replace(
                 /Dostupné z[\s\S]+$/,
                 ghInfo?.repo
-                  ? `Dostupné z <[${ghInfo.user}.github.io/${ghInfo.repo}](https://${ghInfo.user}.github.io/${ghInfo.repo})>.`
+                  ? `Dostupné z <[${ghInfo.user}.github.io/${ghInfo.repo}](https://${ghInfo.user}.github.io/${ghInfo.repo}/)>.`
                   : ''
               )
+
               .split(/\. /);
 
             categories[c].push(filtered.join('. '));
@@ -339,6 +341,7 @@ function dumbifyColophon(text, isbn, github) {
               part
                 .split('\n')
                 .filter(line => !/^Verze/.test(line))
+                .filter(i => i)
                 .join('\n')
             );
 
@@ -349,7 +352,15 @@ function dumbifyColophon(text, isbn, github) {
 
   const sep = '\n\n***\n\n';
   const j = catName => (categories[catName].length ? categories[catName].join('\n\n') : null);
-  return [j('main'), j('origin'), j('license'), j('dedication'), j('bib'), j('quote'), tacr]
+  return [
+    j('main'),
+    j('origin'),
+    j('license'),
+    j('dedication'),
+    j('bib').replace('pubNumber', pubNumberRef.current ? pubNumberRef.current : null),
+    j('quote'),
+    tacr,
+  ]
     .filter(x => x)
     .join(sep);
 }
