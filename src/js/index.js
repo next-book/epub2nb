@@ -298,18 +298,22 @@ function dumbifyColophon(text, isbn, github) {
 
         if (regex.test(part)) {
           if (c === 'main') {
+            const pubNumber = part.match(/(\d+)\.\s+(opravené|elektronické\s+)?vydání/);
+
             const filtered = part
               .replace(/(\n\s+)+/g, '\n')
               .split(/\n/)
-              .filter(line => !/\d\.\s+(opravené\s+)?vydání|^Verze|ISBN|na obálce/.test(line));
+              .filter(
+                line => !/\d\.\s+(opravené|elektronické\s+)?vydání|^Verze|ISBN|na obálce/.test(line)
+              );
 
             if (isbn) filtered.push(`ISBN ${isbn} (webová kniha)`);
 
             const d = new Date();
             filtered.push(
-              `1\. vydání webové knihy v MKP z ${d.getDate()}. ${
-                d.getMonth() + 1
-              }. ${d.getFullYear()}.`
+              `V MKP ${
+                pubNumber?.[1] ? parseInt(pubNumber[1], 10) + 1 : 1
+              }\. elektronické vydání z ${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}.`
             );
 
             categories[c].push(filtered.join('  \n'));
