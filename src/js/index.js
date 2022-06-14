@@ -63,7 +63,7 @@ const convertBook = (dir, github) => {
     saveChapters(chapterTexts, params.params ? params.params.structure : [], nbDir, 0);
     fs.writeFileSync(
       path.join(nbDir, 'colophon.md'),
-      prepColophon(colophon, params?.params?.metadata?.isbn)
+      prepColophon(colophon, params?.params?.metadata?.isbn, github)
     );
     fs.writeFileSync(getParamsPath(dir), JSON.stringify(params, null, 2));
     copyEditorFiles(dir);
@@ -249,7 +249,7 @@ function removeFrontMatter(mdContent) {
   return mdContent.replace(/^[\s\S]+?\n---\n/, '');
 }
 
-function prepColophon(colophon) {
+function prepColophon(colophon, isbn, github) {
   const text = colophon
     .map(chapter => fm(chapter))
     .map(data =>
@@ -257,12 +257,12 @@ function prepColophon(colophon) {
     )
     .join('\n\n');
 
-  const dumbColophone = dumbifyColophon(text);
+  const dumbColophone = dumbifyColophon(text, isbn, github);
 
   return `---\ntitle: Tiráž\n---\n\n${dumbColophone}`;
 }
 
-function dumbifyColophon(text, isbn) {
+function dumbifyColophon(text, isbn, github) {
   const tacr =
     'Vydání webové knihy podpořila [Technologická agentura ČR](https://www.tacr.cz/) v projektu ' +
     '[Redesign knihovních služeb 2020: webové knihy](https://starfos.tacr.cz/cs/project/TL04000391).';
@@ -294,6 +294,7 @@ function dumbifyColophon(text, isbn) {
         [/.+/, 'other'],
       ].some(pair => {
         const [regex, c] = pair;
+        const ghInfo = getGhData(github);
 
         if (regex.test(part)) {
           if (c === 'main') {
@@ -319,8 +320,13 @@ function dumbifyColophon(text, isbn) {
                 /\[aktuální datum citace[^\]]+\]/,
                 `[cit. ${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}]`
               )
-              .replace(/V\sMKP\s\d+\.\svyd\./g, '')
-              .replace(/Dostupné z[\s\S]+$/g, 'Dostupné z: <next-book-url>')
+              .replace(/V\sMKP\s(\d+)\.\svyd\./g)
+              .replace(
+                /Dostupné z[\s\S]+$/,
+                ghInfo?.repo
+                  ? `Dostupné z [${ghInfo.user}.github.io/${ghInfo.repo}](https://${ghInfo.user}.github.io/${ghInfo.repo}).`
+                  : ''
+              )
               .split(/\. /);
 
             categories[c].push(filtered.join('. '));
