@@ -357,7 +357,9 @@ function dumbifyColophon(text, isbn, github) {
     j('origin'),
     j('license'),
     j('dedication'),
-    j('bib').replace('pubNumber', pubNumberRef.current ? pubNumberRef.current : null),
+    j('bib')
+      ? j('bib').replace('pubNumber', pubNumberRef.current ? pubNumberRef.current : null)
+      : null,
     j('quote'),
     tacr,
   ]
