@@ -89,7 +89,16 @@ function createBookFile(metadata, structure, chapterTexts) {
     meta: metadata,
     readingOrder: getReadingOrder(structure || [], 0),
     tocBase: structure ? assembleTocBase(structure) : null,
-    static: ['style', 'scripts', 'title', 'fonts', 'resources', 'template-images', 'favicon.png'],
+    static: [
+      'style',
+      'scripts',
+      'title',
+      'fonts',
+      'resources',
+      'template-images',
+      'assets',
+      'favicon.png',
+    ],
   });
 
   return `---\n${frontMatter.trim()}\n---\n`;
