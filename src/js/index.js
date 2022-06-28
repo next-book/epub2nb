@@ -25,7 +25,7 @@ const defaultElements = buildElements(
   JSON.parse(fs.readFileSync(path.join(PKG_DIR, 'default-classes.json'), 'utf8'))
 );
 
-const colophon = [];
+const about = [];
 
 const convertBook = (dir, github) => {
   const { readiumDir, nbDir, resourcesDir } = prepDirs(dir);
@@ -62,8 +62,8 @@ const convertBook = (dir, github) => {
 
     saveChapters(chapterTexts, params.params ? params.params.structure : [], nbDir, 0);
     fs.writeFileSync(
-      path.join(nbDir, 'colophon.md'),
-      prepColophon(colophon, params?.params?.metadata?.isbn, github)
+      path.join(nbDir, 'about.md'),
+      prepAbout(about, params?.params?.metadata?.isbn, github)
     );
     fs.writeFileSync(getParamsPath(dir), JSON.stringify(params, null, 2));
     copyEditorFiles(dir);
@@ -163,7 +163,7 @@ function replaceExt(filename) {
 }
 
 function getReadingOrder(structure) {
-  let colophon = null;
+  let about = null;
 
   function extractFilenames(structureLevel, lvl) {
     return structureLevel.reduce((acc, chapter, index) => {
@@ -171,8 +171,8 @@ function getReadingOrder(structure) {
         return acc;
       } else if (chapter.role === 'promo') {
         acc.push(replaceExt('promo.md'));
-      } else if (chapter.role === 'colophon') {
-        colophon = 'colophon.html';
+      } else if (chapter.role === 'about') {
+        about = 'about.html';
         return acc;
       } else if (!chapter.isSection) {
         acc.push(replaceExt(chapter.filename));
@@ -187,7 +187,7 @@ function getReadingOrder(structure) {
   }
 
   const readingOrder = extractFilenames(structure, 0);
-  if (colophon) readingOrder.push(colophon);
+  if (about) readingOrder.push(about);
 
   return readingOrder;
 }
@@ -198,8 +198,8 @@ function saveChapters(chapterTexts, structure, nbDir, level) {
   structure.forEach(async (chapter, index) => {
     if (chapter.role === 'remove') {
       return;
-    } else if (chapter.role === 'colophon') {
-      colophon.push(chapterTexts[chapter.filename]);
+    } else if (chapter.role === 'about') {
+      about.push(chapterTexts[chapter.filename]);
     } else if (chapter.role === 'promo') {
       const promo = await getPromoData();
       if (promo !== null) fs.writeFileSync(path.join(nbDir, 'promo.md'), promo);
@@ -258,20 +258,20 @@ function removeFrontMatter(mdContent) {
   return mdContent.replace(/^[\s\S]+?\n---\n/, '');
 }
 
-function prepColophon(colophon, isbn, github) {
-  const text = colophon
+function prepAbout(about, isbn, github) {
+  const text = about
     .map(chapter => fm(chapter))
     .map(data =>
       data.attributes.title ? `## ${data.attributes.title}\n\n${data.body}` : `***\n\n${data.body}`
     )
     .join('\n\n');
 
-  const dumbColophone = dumbifyColophon(text, isbn, github);
+  const dumbAbout = dumbifyAbout(text, isbn, github);
 
-  return `---\ntitle: Tiráž\n---\n\n${dumbColophone}`;
+  return `---\ntitle: Tiráž\n---\n\n${dumbAbout}`;
 }
 
-function dumbifyColophon(text, isbn, github) {
+function dumbifyAbout(text, isbn, github) {
   const tacr =
     'Vydání webové knihy podpořila [Technologická agentura ČR](https://www.tacr.cz/) v projektu ' +
     '[Redesign knihovních služeb 2020: webové knihy](https://starfos.tacr.cz/cs/project/TL04000391).';

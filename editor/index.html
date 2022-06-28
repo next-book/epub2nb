@@ -91,10 +91,10 @@
                       </span>
                     </label>
 
-                    <label v-if="!item.isSection" title="colophon">
-                      <input type="radio" value="colophon" v-model="item.role">
+                    <label v-if="!item.isSection" title="about">
+                      <input type="radio" value="about" v-model="item.role">
                       <span class="btn">
-                        <span class="material-icons">copyright</span> <span class="desc">colophon</span>
+                        <span class="material-icons">copyright</span> <span class="desc">about</span>
                       </span>
                     </label>
 
@@ -180,7 +180,7 @@
               <li>removed documents</li>
               <li>documents without title</li>
               <li>single sub-documents (represented by their parent documents)</li>
-              <li>colophon and book cover (appended in the bottom)</li>
+              <li>the about page and book cover (appended in the bottom)</li>
             </ul>
             <p><b>Note:</b> Preview does not include sub-headings inside chapters.</p>
           </div>

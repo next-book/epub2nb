@@ -77,9 +77,9 @@ Vue.component('toc-specials', {
         <span class="title">Book cover</span>
       </li>
 
-      <li v-for="item in colophon">
+      <li v-for="item in about">
         <span class="filename">{{item.filename}}</span>
-        <span class="title">Colophon (will be merged)</span>
+        <span class="title">About (will be merged)</span>
       </li>
     </ul>
   `,
@@ -118,8 +118,8 @@ Vue.component('toc-specials', {
     cover: function () {
       return this.findInStructure(this.structure, 'cover');
     },
-    colophon: function () {
-      return this.findAllInStructure(this.structure, 'colophon');
+    about: function () {
+      return this.findAllInStructure(this.structure, 'about');
     },
   },
   props: ['structure'],
@@ -142,7 +142,7 @@ Vue.component('toc-preview', {
 
 Vue.component('toc-item', {
   template: `
-    <li v-if="!item.isSection && !item.devoured && item.title && item.role !== 'remove' && item.role !== 'colophon' && item.inToc && item.role !== 'cover'">
+    <li v-if="!item.isSection && !item.devoured && item.title && item.role !== 'remove' && item.role !== 'about' && item.inToc && item.role !== 'cover'">
       <span class="filename">{{item.filename}}</span>
       <span class="title">{{item.title}}</span>
       <toc-preview v-if="item.children && item.children.length > 1" :items="item.children" :list-type="item.listType"></toc-preview>
@@ -159,7 +159,7 @@ Vue.component('icon', {
     <span v-if="role == 'cover'" class="material-icons">photo</span>
     <span v-else-if="role == 'chapter'" class="material-icons">subject</span>
     <span v-else-if="role == 'break'" class="material-icons">subtitles</span>
-    <span v-else-if="role == 'colophon'" class="material-icons">copyright</span>
+    <span v-else-if="role == 'about'" class="material-icons">copyright</span>
     <span v-else-if="role == 'promo'" class="material-icons">label</span>
     <span v-else-if="role == 'remove'" class="material-icons">close</span>
     `,
