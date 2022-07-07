@@ -483,8 +483,8 @@ function baseStructureOnReadingOrder(chapters) {
       isSection: true,
       id: 'section-1',
       children: chapters.map((chapter, index) => ({
-        filename: chapter.filename,
-        xhtml: chapter.xhtml,
+        filename: chapter.out,
+        xhtml: path.parse(chapter.src).name + path.parse(chapter.src).ext,
         title: chapter.title,
         id: index,
         role: 'chapter',
