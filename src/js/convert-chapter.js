@@ -190,6 +190,8 @@ const replaceFootnotes = mdText => {
       .replace(/\n\[(\d+)\]\([^\)]*#footnote-[^\)]+?-backlink\) ?/g, '\n[^$1]: ')
       // [94](<self-link>#footnote-19288-94)
       .replace(/\[(\d+)\]\([^\)]*#footnote-[^\)]+?\)/g, '[^$1]')
+      // [\[12\]](../Text/vladar_035.html#_ftn12)
+      .replace(/\[\\\[(\d+)\\\]\]\([^\)]+\)/g, '[^$1]')
   );
 };
 
@@ -227,7 +229,7 @@ const clearNewlines = md => md.replace(/\n\n+/g, '\n\n').trim();
 
 const nbsp2Br = html => html.replace(/<p>&nbsp;<\/p>/g, '<br>');
 
-const convertChapter = (chapter, params, hiddenTitles, resources) => {
+const convertChapter = (chapter, params, hiddenTitles, resources, globalFootnotes) => {
   const { text, meta } =
     params.params && params.params.elements
       ? replaceElements(chapter.text, params.params.elements, params.epub.classes)
@@ -236,7 +238,7 @@ const convertChapter = (chapter, params, hiddenTitles, resources) => {
   // turn to md
   const md = clearNewlines(tooManyNbsps(br2Section(turndownService.turndown(nbsp2Br(text)))));
 
-  const withFootnotes = replaceFootnotes(md);
+  const withFootnotes = replaceFootnotes(globalFootnotes ? md + '\n\n' + globalFootnotes : md);
 
   if (hiddenTitles.includes(chapter.out)) meta.hiddenTitle = true;
 

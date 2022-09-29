@@ -55,8 +55,30 @@ const convertBook = (dir, github) => {
 
     const hiddenTitles = params.params ? getHiddenTitleFilenames(params.params.structure) : [];
 
+    const globalFootnotesObj = { current: null };
+    const globalFootnotesIndex = chapters.findIndex(c => /Poznámky pod čarou<\/h1>/.test(c.text));
+
+    if (globalFootnotesIndex !== -1) {
+      globalFootnotesObj.current = convertChapter(
+        chapters[globalFootnotesIndex],
+        params,
+        hiddenTitles,
+        resources
+      )
+        .split('\n---\n')[1]
+        .replace(/<\/?section>/g, '')
+        .replace(/\n\[\^(\d+)\]/g, '\n[^$1]:')
+        .trim();
+    }
+
     const chapterTexts = chapters.reduce((acc, chapter, index) => {
-      acc[chapter.out] = convertChapter(chapter, params, hiddenTitles, resources);
+      acc[chapter.out] = convertChapter(
+        chapter,
+        params,
+        hiddenTitles,
+        resources,
+        globalFootnotesObj.current
+      );
       return acc;
     }, {});
 
