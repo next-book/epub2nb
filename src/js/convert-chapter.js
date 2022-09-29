@@ -171,7 +171,10 @@ const updateResourceLinksByFilename = (text, resources) => {
   }, {});
 
   return links.reduce(
-    (acc, l) => acc.replace(l.link, `./resources/${encodeURI(replacements[l.base])}`),
+    (acc, l) =>
+      replacements[l.base]
+        ? acc.replace(l.link, `./resources/${encodeURI(replacements[l.base])}`)
+        : l.link,
     text
   );
 };
