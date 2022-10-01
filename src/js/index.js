@@ -56,7 +56,9 @@ const convertBook = (dir, github) => {
     const hiddenTitles = params.params ? getHiddenTitleFilenames(params.params.structure) : [];
 
     const globalFootnotesObj = { current: null };
-    const globalFootnotesIndex = chapters.findIndex(c => /Poznámky pod čarou<\/h1>/.test(c.text));
+    const globalFootnotesIndex = chapters.findIndex(c =>
+      /Poznámky pod čarou<\/h[12]>/.test(c.text)
+    );
 
     if (globalFootnotesIndex !== -1) {
       globalFootnotesObj.current = convertChapter(
