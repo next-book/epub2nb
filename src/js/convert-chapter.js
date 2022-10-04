@@ -188,10 +188,14 @@ const replaceFootnotes = mdText => {
       .replace(/\n_(\[(\d+)\]\([^\)]*#footnote-[^\)]+?-backlink\).+)_\n/g, '\n$1\n')
       // [94](<self-link>#footnote-19288-94-backlink)
       .replace(/\n\[(\d+)\]\([^\)]*#footnote-[^\)]+?-backlink\) ?/g, '\n[^$1]: ')
+      // [\[12\]](../Text/vladar_035.html#_ftn12)
+      .replace(/\n\[\\\[(\d+)\\\]\]\([^\)]+?\)/g, '\n[^$1]')
       // [94](<self-link>#footnote-19288-94)
       .replace(/\[(\d+)\]\([^\)]*#footnote-[^\)]+?\)/g, '[^$1]')
+      // _[_\[304\]_](../Text/odysseus_012.html#_ftn304)
+      .replace(/\[_\\\[(\d+)\\\]_\]\([^\)]+?\)/g, '[^$1]')
       // [\[12\]](../Text/vladar_035.html#_ftn12)
-      .replace(/\[\\\[(\d+)\\\]\]\([^\)]+\)/g, '[^$1]')
+      .replace(/\[\\\[(\d+)\\\]\]\([^\)]+?\)/g, '[^$1]')
   );
 };
 
