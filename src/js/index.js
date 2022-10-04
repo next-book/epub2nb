@@ -388,7 +388,8 @@ function dumbifyAbout(text, isbn, github) {
 
   const sep = '\n\n***\n\n';
   const j = catName => (categories[catName].length ? categories[catName].join('\n\n') : null);
-  return [
+  return (
+    [
     j('main'),
     j('origin'),
     j('license'),
@@ -400,7 +401,11 @@ function dumbifyAbout(text, isbn, github) {
     tacr,
   ]
     .filter(x => x)
-    .join(sep);
+      .join(sep)
+      // remove links and images
+      .replace(/\[!\[\]\([^\)]+?\)\]\([^\)]+?\)/g, '')
+      .replace(/!\[\]\([^\)]+?\)/g, '')
+  );
 }
 
 function saveSubchapters(chapterTexts, structure, nbDir, level) {
