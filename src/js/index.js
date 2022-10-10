@@ -342,7 +342,10 @@ function dumbifyAbout(text, isbn, github) {
               .replace(/(\n\s+)+/g, '\n')
               .split(/\n/)
               .filter(
-                line => !/\d\.\s+(opravené|elektronické\s+)?vydání|^Verze|ISBN|na obálce/.test(line)
+                line =>
+                  !/\d\.\s+(opravené|elektronické\s+)?vydání|^Verze|ISBN|na obálce|^Návrh obálky|^Ilustrace /.test(
+                    line
+                  )
               );
 
             if (isbn) filtered.push(`ISBN ${isbn} (webová kniha)`);
